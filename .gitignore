@@ -1,3 +1,7 @@
+datasets/
+
+#---------------------BELOW IS FOR THE PYTHON TEMPLATE FROM GIT------------------#
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
