@@ -1,6 +1,10 @@
 # StrainNet
 StrainNet is a deep neural network for measuring deformation from images
 
+# Table of Contents
+1. [Layout of the repository](##Layoutoftherepository )
+2. [Requirements](##Requirements)
+
 ## Layout of the repository 
 ```Shell
 ├── datasets
