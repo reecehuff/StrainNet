@@ -9,7 +9,8 @@ $\texttt{StrainNet}$ is a deep learning based method for predicting strain from 
 
 # Table of Contents
 - [Getting started](#getting-started)
-- [Generating a training set](#training-set)
+- [Generating a training set](#generating-a-training-set)
+- [Training $\texttt{StrainNet}$ on the training set](#training-textttstrainnet-on-the-training-set)
 
 # Getting Started
 
@@ -23,7 +24,7 @@ cd StrainNet
 
 Next, install the necessary Python packages with Anaconda.
 ```
-conda create env -n StrainNet python=3.9
+conda create -n StrainNet python=3.9
 conda activate StrainNet
 pip install -r requirements.txt
 ```
