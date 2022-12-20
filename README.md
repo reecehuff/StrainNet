@@ -1,24 +1,40 @@
-# StrainNet
-StrainNet is a deep neural network for measuring deformation from images
+# $\texttt{StrainNet}$
+$\texttt{StrainNet}$ is a deep learning based method for predicting strain from medical images
+
+![Teaser image](figures/StrainNet.gif)
+
+### [Project Page](https://strainnet.net) | Paper | bioRxiv | SB$^\text{3}$C Abstract | Citation
+
+<br/>
 
 # Table of Contents
-1. [Layout of the repository](##Layoutoftherepository )
-2. [Requirements](##Requirements)
+- [Getting started](#getting-started)
+- [Generating a training set](#training-set)
 
-## Layout of the repository 
-```Shell
-├── datasets
-      
+# Getting Started
+
+Begin by cloning this repository:
+
+```
+git clone https://github.com/reecehuff/StrainNet.git
+cd StrainNet
+```
+ 
+
+Next, install the necessary Python packages with Anaconda.
+```
+conda create env -n StrainNet python=3.9
+conda activate StrainNet
+pip install -r requirements.txt
 ```
 
-## Requirements
-Begin by creating a new conda environment in your terminal:
-```Shell
-conda create env -n <ENV_NAME> 
-```
-Activate your new environment. 
-```Shell
-source activate <ENV_NAME>
-```
+# Generating a training set
 
+### For a full tutorial, see [generateTrainingSet/README.md](generateTrainingSet/README.md).
+
+# Training $\texttt{StrainNet}$ on the training set 
+
+# Evaluating the performance of $\texttt{StrainNet}$
+
+# Testing $\texttt{StrainNet}$ on experimental images
 
