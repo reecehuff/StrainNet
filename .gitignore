@@ -1,4 +1,7 @@
 datasets/
+generateTrainingSet/output/*
+.DS_Store
+generateTrainingSet/.DS_Store
 
 #---------------------BELOW IS FOR THE PYTHON TEMPLATE FROM GIT------------------#
 
