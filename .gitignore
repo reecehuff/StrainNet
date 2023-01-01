@@ -2,6 +2,12 @@ datasets/
 generateTrainingSet/output/*
 .DS_Store
 generateTrainingSet/.DS_Store
+logs/ 
+runs/
+models/*
+!models/pretrained
+models/pretrained/*
+!models/pretrained/*.pt
 
 #---------------------BELOW IS FOR THE PYTHON TEMPLATE FROM GIT------------------#
 
