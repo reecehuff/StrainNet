@@ -13,9 +13,7 @@ def applyTension(img, mask, args):
 
     The outputs are:
         displacement_field - The displacement field that was applied to the image (numpy array of the same size as the image x 2)
-        strain_xx - The xx strain (numpy array of the same size as the image).
-        strain_yy - The yy strain (numpy array of the same size as the image).
-        strain_xy - The xy strain (numpy array of the same size as the image).
+        strain - The strain (numpy array of the same size as the image x 3).
 
     """
     # Assert the image is the same size as the mask
@@ -43,26 +41,22 @@ def applyTension(img, mask, args):
     # Gather random tension parameters and save them in a dictionary
     params = randomTensionParameters(x_c, y_c, mask_height, mask_width, args)
 
-    # Loop through the indices of the mask
-    for i in range(len(mask_indices[0])):
+    # Determine the x and y indices of the mask
+    x = mask_indices[1]
+    y = mask_indices[0]
 
-        # Determine the x and y indices of the mask
-        x = mask_indices[1][i]
-        y = mask_indices[0][i]
+    # Calculate the displacement in the x and y directions
+    displacement_x, displacement_y = calculateDisplacement(x, y, params)
 
-        # Calculate the displacement in the x and y directions
-        displacement_x, displacement_y = calculateDisplacement(x, y, params)
+    # Calculate the strain in the xx, yy, and xy directions
+    strain_xx, strain_yy, strain_xy = calculateStrain(x, y, params)
 
-        # Calculate the strain in the xx, yy, and xy directions
-        strain_xx, strain_yy, strain_xy = calculateStrain(x, y, params)
-
-        # Save the displacement in the displacement field and the strain in the strain field
-
-        displacement_field[y, x, 0] = displacement_x
-        displacement_field[y, x, 1] = displacement_y
-        strain[y, x, 0] = strain_xx
-        strain[y, x, 1] = strain_yy
-        strain[y, x, 2] = strain_xy
+    # Save the displacement in the displacement field and the strain in the strain field
+    displacement_field[y, x, 0] = displacement_x
+    displacement_field[y, x, 1] = displacement_y
+    strain[y, x, 0] = strain_xx
+    strain[y, x, 1] = strain_yy
+    strain[y, x, 2] = strain_xy
 
     return displacement_field, strain
 
@@ -135,5 +129,10 @@ def calculateStrain(x,y,params):
     strain_xx = a*(y-y_c)**2 + epsilon_xx_center
     strain_yy = -nu*(a*(y - y_c)**2 + epsilon_xx_center)
     strain_xy = a*(x-x_c)*(y - y_c)
+
+    # Convert the strain to percent strain
+    strain_xx *= 100
+    strain_yy *= 100
+    strain_xy *= 100
 
     return strain_xx, strain_yy, strain_xy
