@@ -4,7 +4,7 @@ StrainNet is a deep learning based method for predicting strain from images
 
 ![Teaser image](figures/StrainNet.gif)
 
-### [Project Page](https://strainnet.net) | Paper | bioRxiv | SB$^\text{3}$C Abstract | Citation
+### [Project Page](https://strainnet.net) | Paper | bioRxiv | SB3C Abstract | Citation
 
 <br/>
 
