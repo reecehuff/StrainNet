@@ -1,5 +1,6 @@
-# $\texttt{StrainNet}$
-$\texttt{StrainNet}$ is a deep learning based method for predicting strain from medical images
+<!-- omit in toc -->
+# StrainNet
+StrainNet is a deep learning based method for predicting strain from images
 
 ![Teaser image](figures/StrainNet.gif)
 
@@ -7,10 +8,13 @@ $\texttt{StrainNet}$ is a deep learning based method for predicting strain from 
 
 <br/>
 
-# Table of Contents
-- [Getting started](#getting-started)
+<!-- omit in toc -->
+# Table of Contents 
+- [Getting Started](#getting-started)
 - [Generating a training set](#generating-a-training-set)
-- [Training $\texttt{StrainNet}$ on the training set](#training-textttstrainnet-on-the-training-set)
+- [Training StrainNet on the training set](#training-strainnet-on-the-training-set)
+- [Evaluating the performance of StrainNet](#evaluating-the-performance-of-strainnet)
+- [Testing StrainNet on experimental images](#testing-strainnet-on-experimental-images)
 
 # Getting Started
 
@@ -31,11 +35,16 @@ pip install -r requirements.txt
 
 # Generating a training set
 
+<!-- omit in toc -->
 ### For a full tutorial, see [generateTrainingSet/README.md](generateTrainingSet/README.md).
 
-# Training $\texttt{StrainNet}$ on the training set 
+<br/>
 
-# Evaluating the performance of $\texttt{StrainNet}$
+# Training StrainNet on the training set 
 
-# Testing $\texttt{StrainNet}$ on experimental images
+
+
+# Evaluating the performance of StrainNet
+
+# Testing StrainNet on experimental images
 
