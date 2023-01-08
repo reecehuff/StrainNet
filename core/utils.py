@@ -293,3 +293,14 @@ def get_data_dirs(args):
     assert os.path.exists(args.val_data_dir), 'Validation data directory does not exist'
 
     return args
+
+# Define a function setting the random seeds
+def set_random_seeds(seed):
+    # Set the random seed
+    os.environ['PYTHONHASHSEED'] = str(seed)
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)
+    np.random.seed(seed)
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False
