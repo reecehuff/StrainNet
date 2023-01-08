@@ -12,8 +12,7 @@ from core import utils
 def main(args):
     
     # Set the random seed
-    np.random.seed(args.seed)
-    torch.manual_seed(args.seed)
+    utils.set_random_seeds(args.seed)
     
     # Train each of the models 
     if args.train_all:
