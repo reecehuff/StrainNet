@@ -42,10 +42,16 @@ def train_args():
     parser.add_argument('--RigidNet_name', type=str, default='RigidNet', help='The model name of the RigidNet.')
 
     # Define the number of classes 
-    parser.add_argument('--num_classes', type=int, default=3, help='The number of classes to use.')
+    parser.add_argument('--num_classes', type=int, default=3, help='The number of classes (number of different deformations to predict) to use.')
 
     # Define the number of input channels
     parser.add_argument('--input_channels', type=int, default=2, help='The number of input channels to use.')
+
+    # Define the height of the input image
+    parser.add_argument('--input_height', type=int, default=384, help='The height of the input image to use.')
+
+    # Define the width of the input image
+    parser.add_argument('--input_width', type=int, default=192, help='The width of the input image to use.')
 
     # Define the number of epochs
     parser.add_argument('--epochs', type=int, default=100, help='The number of epochs to train for.')
@@ -79,8 +85,11 @@ def train_args():
     val_data_dir = 'datasets/' + dataset_name + '/validation'
     parser.add_argument('--val_data_dir', type=str, default=val_data_dir, help='The directory of the validation data.')
 
-    #%% Define whether to visualize the data
+    # Define whether to visualize the data
     parser.add_argument('--visualize', action='store_true', help='Whether to visualize the data.')
+
+    # Add an argument for resuming training that is a path to the model
+    parser.add_argument('--resume', type=str, default=None, help='The path to the model to resume training from.')
 
     # Parse the arguments
     args = parser.parse_args()
@@ -105,13 +114,120 @@ def train_args():
         args.device = 'cpu'
 
     # Add the training transform
-    args.train_transform = utils.get_transform('train')
+    args.train_transform = utils.get_transform(args, 'train')
 
     # Add the validation transform
-    args.valid_transform = utils.get_transform('valid')
+    args.valid_transform = utils.get_transform(args, 'valid')
 
     # Add the test transform
-    args.test_transform = utils.get_transform('test')
+    args.test_transform = utils.get_transform(args, 'test')
+
+    # Save the args as a xlsx file
+    args_df = pd.DataFrame.from_dict(vars(args), orient='index')
+    args_df.to_excel(args.log_dir + '/args.xlsx')
+    
+    # Loop through the arguments and print them
+    print('================================================================')
+    print('======================== Arguments: ============================')
+    print('================================================================')
+    for arg in vars(args):
+        print(arg, ':', getattr(args, arg))
+    print('================================================================')
+    print('================================================================')
+    print('================================================================')
+
+    return args
+
+# Define a function for evaluating the model arguments
+def eval_args():
+    
+    # Gather the arguments from the command line
+    parser = argparse.ArgumentParser(description='Evaluate the models for StrainNet.')
+
+    # Define the random seed
+    parser.add_argument('--seed', type=int, default=0, help='The random seed to use.')
+
+    # Define the device to use
+    parser.add_argument('--device', type=str, default='cuda', help='The device to use.')
+
+    # Define the model type
+    parser.add_argument('--model_type', type=str, default='StrainNet', help='The model type to evaluate.')
+
+    # Define the model name of the DeformationClassifier
+    parser.add_argument('--DeformationClassifier_name', type=str, default='DeformationClassifier', help='The model name of the DeformationClassifier.')
+
+    # Define the model name of the TensionNet
+    parser.add_argument('--TensionNet_name', type=str, default='TensionNet', help='The model name of the TensionNet.')
+
+    # Define the model name of the CompressionNet
+    parser.add_argument('--CompressionNet_name', type=str, default='CompressionNet', help='The model name of the CompressionNet.')
+
+    # Define the model name of the RigidNet
+    parser.add_argument('--RigidNet_name', type=str, default='RigidNet', help='The model name of the RigidNet.')
+
+    # Define the number of classes 
+    parser.add_argument('--num_classes', type=int, default=3, help='The number of classes (number of different deformations to predict) to use.')
+
+    # Define the number of input channels
+    parser.add_argument('--input_channels', type=int, default=2, help='The number of input channels to use.')
+
+    # Define the height of the input image
+    parser.add_argument('--input_height', type=int, default=384, help='The height of the input image to use.')
+
+    # Define the width of the input image
+    parser.add_argument('--input_width', type=int, default=192, help='The width of the input image to use.')
+
+    # Define the batch size
+    parser.add_argument('--batch_size', type=int, default=1, help='The batch size to use.')
+
+    # Define the model directory
+    model_dir = 'models/' + 'pretrained/synthetic/' 
+    parser.add_argument('--model_dir', type=str, default=model_dir, help='The model directory to use.')
+
+    # Define the log directory
+    log_dir = 'results/' + 'pretrained/synthetic/' 
+    parser.add_argument('--log_dir', type=str, default=log_dir, help='The log directory to use.')
+
+    # Define the name of the dataset
+    dataset_name = 'train_set_N_tension_10_N_compression_10_N_rigid_10'
+    parser.add_argument('--dataset_name', type=str, default=dataset_name, help='The name of the dataset.')
+
+    # Define the location of the validation data
+    val_data_dir = 'datasets/' + dataset_name + '/validation'
+    parser.add_argument('--val_data_dir', type=str, default=val_data_dir, help='The directory of the validation data.')
+
+    # Define whether to visualize the data
+    parser.add_argument('--visualize', action='store_true', help='Whether to visualize the data.')
+
+    # Add an argument for dealing with sequential data such as the synthetic test cases
+    parser.add_argument('--sequential', action='store_true', help='Whether the data is sequential.')
+
+    # Add an argument the sampling rate of the sequential data
+    parser.add_argument('--sampling_rate', type=int, default=1, help='The sampling rate of the sequential data.')
+    
+    # Just need this argument to keep the same interface as the evaluation script
+    parser.add_argument('--resume', type=str, default=None, help='Keep this argument even though it serves no purpose for evaluation.')
+
+    # Parse the arguments
+    args = parser.parse_args()
+
+    # Create a directory for logging the results
+    if not os.path.exists(args.log_dir):
+        os.makedirs(args.log_dir)
+
+    # Assert the validation data directory exists
+    assert os.path.exists(args.val_data_dir), 'The validation data directory does not exist.'
+
+    # Make sure that cuda is available if you wish to use it
+    if args.device == 'cuda' and not torch.cuda.is_available():
+        Warning('Cuda is not available. Using cpu instead.')
+        args.device = 'cpu'
+
+    # Add the validation transform
+    args.valid_transform = utils.get_transform(args, 'valid')
+
+    # Add the test transform
+    args.test_transform = utils.get_transform(args, 'test')
 
     # Save the args as a xlsx file
     args_df = pd.DataFrame.from_dict(vars(args), orient='index')
