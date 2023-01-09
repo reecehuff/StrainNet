@@ -1,13 +1,12 @@
-# Generating a Training Set for $\texttt{StrainNet}$
+# Generating a Training Set for StrainNet
 
-StrainNet is a two-stage deep neural network for measuring strain (i.e., deformation) from two successive images. In order to train the network, we need to provide a set of images and corresponding strain measurements as input. This subdirectory contains information and resources for generating a training set for $\texttt{StrainNet}$.
+StrainNet is a two-stage deep neural network for measuring strain (i.e., deformation) from two successive images. In order to train the network, we need to provide a set of images and corresponding strain measurements as input. This subdirectory contains information and resources for generating a training set for StrainNet.
 
 # TLDR
 
 To get a feel for what this subdirectory does, simply run
 
 ```
-cd StrainNet
 python generateTrainingSet/generateTraining.py --visualize --N_tension 5 --N_compression 5 --N_rigid 5
 ```
 
