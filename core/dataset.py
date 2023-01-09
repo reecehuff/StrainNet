@@ -40,10 +40,19 @@ class Dataset_4_Regression(data.Dataset):
         image1 = cv2.imread(self.paths['image1'][index], cv2.IMREAD_GRAYSCALE)
         image2 = cv2.imread(self.paths['image2'][index], cv2.IMREAD_GRAYSCALE)
 
+        # Normalize images
+        image1 = 2*(image1.astype('float32') / 255) - 1.0
+        image2 = 2*(image2.astype('float32') / 255) - 1.0
+
         # Load the strain images
         strain_XX = np.load(self.paths['strain_xx'][index])
         strain_XY = np.load(self.paths['strain_xy'][index])
         strain_YY = np.load(self.paths['strain_yy'][index])
+
+        # Convert strains to float32
+        strain_XX = strain_XX.astype('float32')
+        strain_XY = strain_XY.astype('float32')
+        strain_YY = strain_YY.astype('float32')
 
         # Stack the images
         images = utils.stack([image1, image2])
