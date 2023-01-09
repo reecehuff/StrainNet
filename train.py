@@ -1,14 +1,11 @@
 #%% Imports
-import numpy as np
-import torch 
 
 #-- Scripts 
 from core.arguments import train_args
 from core.trainer import train_model
 from core import utils
 
-#%% Define a function that will create DataSet from image and strain paths 
-
+#%% Define the main function for training
 def main(args):
     
     # Set the random seed
