@@ -27,16 +27,16 @@ class StrainNet(nn.Module):
         
         # Begin by predicting the deformation type
         deformation_type = self.DeformationClassifier(imgs)
-        deformation_type = utils.class2deformation(deformation_type)
+        deformation_type = utils.get_deformation_type(deformation_type)
 
         # If the deformation type is tension, then use the TensionNet
-        if deformation_type == 'tension':
+        if deformation_type == 'Tension':
             strain = self.TensionNet(imgs)
         # If the deformation type is compression, then use the CompressionNet
-        elif deformation_type == 'compression':
+        elif deformation_type == 'Compression':
             strain = self.CompressionNet(imgs)
         # If the deformation type is rigid, then use the RigidNet
-        elif deformation_type == 'rigid':
+        elif deformation_type == 'Rigid':
             strain = self.RigidNet(imgs)
 
         return strain
