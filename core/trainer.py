@@ -13,7 +13,10 @@ def train_model(args, model_type):
     device = torch.device(args.device)
     
     # Initialize the model
-    model = utils.initialize_model(args, model_type, train=True)
+    if args.resume:
+        model = utils.load_model(args, model_type, train=False)
+    else:
+        model = utils.initialize_model(args, model_type, train=True)
 
     # Define the optimizer
     optimizer = utils.get_optimizer(args, model)
