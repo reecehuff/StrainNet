@@ -5,9 +5,7 @@ generateTrainingSet/.DS_Store
 logs/ 
 runs/
 models/*
-!models/pretrained
-models/pretrained/*
-!models/pretrained/*.pt
+results/*
 
 #---------------------BELOW IS FOR THE PYTHON TEMPLATE FROM GIT------------------#
 
