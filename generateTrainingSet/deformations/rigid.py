@@ -1,111 +1,67 @@
 #%% Imports
 import numpy as np
-from scipy import ndimage
 
-# Define a function that applies a random rigid to an image about the mask (if the mask is not None)
-def applyRigid(img, mask, args):
-    """
-    randomRigid applies a random rigid to an image about the mask.
-    
-    The inputs are:
-        img - The image to apply the rigid to.
-        mask - The mask to apply the rigid about.
+#%% Define a set of classes for the rigid body motions
 
-    The outputs are:
-        displacement_field - The displacement field that was applied to the image (numpy array of the same size as the image x 2)
-        strain - The strain (numpy array of the same size as the image x 3).
+class one: # Rigid 1
 
-    """
-    # Assert the image is the same size as the mask
-    assert img.shape == mask.shape, 'The image and mask must be the same size.'
+    # Define a function that calculates the displacement in the x and y directions
+    @staticmethod
+    def calculateDisplacement(self):
 
-    # Determine the height and width of the image
-    H, W = img.shape
+        # Calculate the displacement in the x and y directions
+        displacement_x = self.u_x
+        displacement_y = self.u_y
 
-    # Initialize the displacement field and strain fields
-    displacement_field = np.zeros((H, W, 2))
-    strain = np.zeros((H, W, 3))
+        # Add rotation to the displacement about the centroid of the mask
+        displacement_x = displacement_x * np.cos(np.deg2rad(self.rotation)) - displacement_y * np.sin(np.deg2rad(self.rotation))
+        displacement_y = displacement_x * np.sin(np.deg2rad(self.rotation)) + displacement_y * np.cos(np.deg2rad(self.rotation))
 
-    # Determine the centroid of the mask
-    mask_centroid = ndimage.measurements.center_of_mass(mask)
-    x_c = mask_centroid[1]
-    y_c = mask_centroid[0]
+        return displacement_x, displacement_y
 
-    # Determine the indices of the mask
-    mask_indices = np.where(mask == 1)
+    # Define a function that calculates the strain in the xx, yy and xy direction
+    @staticmethod
+    def calculateStrain(self):
 
-    # Gather random rigid parameters and save them in a dictionary
-    params = randomRigidParameters(x_c, y_c, args)
+        # Calculate the strain in the xx, yy and xy directions
+        strain_xx = 0
+        strain_yy = 0
+        strain_xy = 0
 
-    # Determine the x and y indices of the mask
-    x = mask_indices[1]
-    y = mask_indices[0]
+        # Convert strain to percent
+        strain_xx = strain_xx * 100
+        strain_yy = strain_yy * 100
+        strain_xy = strain_xy * 100
 
-    # Calculate the displacement in the x and y directions
-    displacement_x, displacement_y = calculateDisplacement(x, y, params)
+        return strain_xx, strain_yy, strain_xy
 
-    # Calculate the strain in the xx, yy, and xy directions
-    strain_xx, strain_yy, strain_xy = calculateStrain(x, y, params)
+class two: # Rigid 2
 
-    # Save the displacement in the displacement field and the strain in the strain field
-    displacement_field[y, x, 0] = displacement_x
-    displacement_field[y, x, 1] = displacement_y
-    strain[y, x, 0] = strain_xx
-    strain[y, x, 1] = strain_yy
-    strain[y, x, 2] = strain_xy
+    @staticmethod
+    def calculateDisplacement(self):
 
-    return displacement_field, strain
+        # Calculate the displacement in the x and y directions
+        displacement_x = self.u_x
+        displacement_y = self.u_y
 
-#%% Randomly selected parameters
-def randomRigidParameters(x_c, y_c, args):
-    """
-    randomRigidParameters returns a dictionary of random rigid parameters.
+        # Add rotation to the displacement about the centroid of the mask
+        displacement_x = displacement_x * np.cos(np.deg2rad(self.rotation)) - displacement_y * np.sin(np.deg2rad(self.rotation))
+        displacement_y = displacement_x * np.sin(np.deg2rad(self.rotation)) + displacement_y * np.cos(np.deg2rad(self.rotation))
 
-    The inputs are:
-        args - The arguments from the command line.
+        return displacement_x, displacement_y
 
-    The outputs are:
-        params - A dictionary of random rigid parameters.
+    # Define a function that calculates the strain in the xx, yy and xy direction
+    @staticmethod
+    def calculateStrain(self):
 
-    """
-    # Save the parameters in a dictionary
-    params = { 'u_x': np.random.uniform(args.min_displacement, args.max_displacement),
-               'u_y': np.random.uniform(args.min_displacement, args.max_displacement),
-               'min_rotation': args.min_rotation_angle,
-               'max_rotation': args.max_rotation_angle,
-                'x_c': x_c,
-                'y_c': y_c,
-               }
+        # Calculate the strain in the xx, yy and xy directions
+        strain_xx = 0
+        strain_yy = 0
+        strain_xy = 0
 
-    return params
+        # Convert strain to percent
+        strain_xx = strain_xx * 100
+        strain_yy = strain_yy * 100
+        strain_xy = strain_xy * 100
 
-# Define a function that calculates the displacement in the x and y directions given the x and y indices of the mask and the centroid of the mask
-def calculateDisplacement(x,y,params):
-
-    # Unpack the parameters
-    u_x = params['u_x']
-    u_y = params['u_y']
-    min_rotation = params['min_rotation']
-    max_rotation = params['max_rotation']
-    x_c = params['x_c']
-    y_c = params['y_c']
-
-    # Calculate the displacement in the x and y directions
-    displacement_x = u_x 
-    displacement_y = u_y
-
-    # Add rotation to the displacement about the centroid of the mask
-    displacement_x = displacement_x * np.cos(np.deg2rad(min_rotation)) - displacement_y * np.sin(np.deg2rad(min_rotation))
-    displacement_y = displacement_x * np.sin(np.deg2rad(min_rotation)) + displacement_y * np.cos(np.deg2rad(min_rotation))
-
-    return displacement_x, displacement_y
-
-# Define a function that calculates the strain in the xx, yy and xy direction
-def calculateStrain(x,y,params):
-
-    # Calculate the strain in the xx, yy and xy directions
-    strain_xx = 0
-    strain_yy = 0
-    strain_xy = 0
-
-    return strain_xx, strain_yy, strain_xy
+        return strain_xx, strain_yy, strain_xy
