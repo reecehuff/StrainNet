@@ -4,7 +4,7 @@ StrainNet is a deep learning based method for predicting strain from images
 
 ![Teaser image](figures/StrainNet.gif)
 
-### [Project Page](https://strainnet.net) | Paper | bioRxiv | SB3C Abstract | Citation
+### [Project Page](https://strainnet.net) | Paper | bioRxiv | SB3C Abstract | [Citation](#citation)
 
 **Note:** This paper has been submitted to a journal and the link will be added upon publication.
 <br/>
@@ -14,7 +14,7 @@ StrainNet is a deep learning based method for predicting strain from images
 - [Getting Started](#getting-started)
   - [Set-up](#set-up)
   - [Downloading pre-trained models and data](#downloading-pre-trained-models-and-data)
-  - [Demo](#demo)
+  - [Demo: Applying StrainNet to a Synthetic Test Case](#demo-applying-strainnet-to-a-synthetic-test-case)
 - [Generating a training set](#generating-a-training-set)
 - [Training StrainNet](#training-strainnet)
   - [Arguments](#arguments)
@@ -24,9 +24,14 @@ StrainNet is a deep learning based method for predicting strain from images
     - [Viewing the Tensorboard Webpage](#viewing-the-tensorboard-webpage)
     - [Viewing the Tensorboard File in VSCode](#viewing-the-tensorboard-file-in-vscode)
 - [Evaluating the performance of StrainNet](#evaluating-the-performance-of-strainnet)
-- [Testing StrainNet on experimental images](#testing-strainnet-on-experimental-images)
+  - [Arguments](#arguments-1)
+  - [Evaluating StrainNet on the synthetic test cases](#evaluating-strainnet-on-the-synthetic-test-cases)
+- [Applying StrainNet to experimental images](#applying-strainnet-to-experimental-images)
+  - [Arguments](#arguments-2)
+  - [Applying StrainNet to human flexor tendons *in vivo*](#applying-strainnet-to-human-flexor-tendons-in-vivo)
 - [Citation](#citation)
-- [License](#license)
+    - [TBD](#tbd)
+- [LICENSE](#license)
 
 # Getting Started
 
@@ -39,7 +44,7 @@ git clone https://github.com/reecehuff/StrainNet.git
 cd StrainNet
 ```
 
-Next, install the necessary Python packages with Anaconda.
+Next, install the necessary Python packages with [Anaconda](https://www.anaconda.com/products/distribution).
 ```
 conda create -n StrainNet python=3.9
 conda activate StrainNet
@@ -67,9 +72,17 @@ To download the data and models, run the following command:
 
 This will download the data and models and save them to the current working directory. The data and models may be stored in subdirectories within the current working directory.
 
-## Demo
+## Demo: Applying StrainNet to a Synthetic Test Case
 
+To see a demo of StrainNet in action, you can apply the model to a synthetic test case. The synthetic test case is a simulated image with known strains that can be used to test the accuracy of the model.
 
+To apply StrainNet to the synthetic test case, use the following command:
+
+```
+. scripts/demo.sh
+```
+
+You should now see a `results` folder with some plots of the performance on a synthetic test case where the largest strain is $4\%$ (see the `04DEF` in `StrainNet/datasets/SyntheticTestCases/04DEF`). 
 
 # Generating a training set
 
@@ -80,15 +93,18 @@ This will download the data and models and save them to the current working dire
 
 # Training StrainNet 
 
-To train StrainNet, you will need to run the train.py script. This script can be invoked from the command line, and there are several optional arguments that you can use to customize the training process.
+After generating a training, StrainNet can be trained. To train StrainNet, you will need to run the `train.py` script. This script can be invoked from the command line, and there are several optional arguments that you can use to customize the training process.
 
 Here is an example command for training StrainNet with the default settings:
 
+```
 python train.py
+```
+
 You can also adjust the training settings by specifying command-line arguments. For example, to change the optimizer and learning rate, you can use the following command:
 
 ```
-python train.py --optimizer Adam --learning-rate 0.001
+python train.py --optimizer SGD --lr 0.01
 ```
 
 ## Arguments
@@ -120,12 +136,12 @@ python train.py --resume "path/to/pretrained.pt"
 
 ## Training all models
 
-To train all the models in this project, you can use the `train.sh` script. This script will invoke the necessary training scripts and pass the appropriate arguments to them.
+By default, `train.py` will only train one of the four models needed for StrainNet. To train all the models needed for StrainNet, you can use the `train.sh` script. This script will invoke the necessary training scripts and pass the appropriate arguments to them.
 
 To run the `train.sh` script, simply execute the following command from the terminal:
 
 ```
-bash scripts/train.sh
+. scripts/train.sh
 ```
 
 ## Viewing the progress of your training with Tensorboard
@@ -164,11 +180,8 @@ python eval.py --model_dir "path/to/trained/models" --val_data_dir "path/to/vali
 ```
 Replace `val_data_dir` with the actual path to the trained models, and `"path/to/validation/data"` with the actual path to the validation data.
 
-The `eval.py` script will output the evaluation metrics. You can also pass the --save-results flag to save the evaluation results to a file:
+## Arguments
 
-```
-python eval.py --model_dir "path/to/trained/models" --val_data_dir "path/to/validation/data"
-```
 You can see a list of all the available arguments for the `eval.py` script by using the `--help` flag:
 
 ```
@@ -176,19 +189,62 @@ python eval.py --help
 ```
 Or examine the [`core/arguments.py`](core/arguments.py) Python script. 
 
-# Testing StrainNet on experimental images
+## Evaluating StrainNet on the synthetic test cases
 
-**Note:** If you have not already, please download the pre-trained models. 
+To apply the pretrained models to the synthetic test cases, you can use the `eval.sh` script. This script will invoke the necessary evaluation scripts and pass the appropriate arguments to them.
+
+To run the `eval.sh` script, simply execute the following command from the terminal:
+
+```
+. scripts/eval.sh
+```
+
+# Applying StrainNet to experimental images
+
+To apply StrainNet to experimental images that do not have known strains, you can use the `apply2experimental.py` script. This script loads the trained StrainNet model and processes the experimental images to predict the strains.
+
+To apply StrainNet to experimental images, use the following command:
+
+```
+python apply2experimental.py --model path/to/trained/model --experimental-data path/to/experimental/data
+```
+
+Replace `path/to/trained/model` with the actual path to the trained StrainNet model, and `path/to/experimental/data` with the actual path to the experimental data.
+
+The `apply2experimental.py` script will output the predicted strains to the terminal and/or save them to a file, depending on the specified command line arguments.
+
+## Arguments
+
+You can see a list of all the available arguments for the `apply2experimental.py` script by using the `--help` flag:
+
+```
+python apply2experimental.py --help
+```
+
+**Note:** The `apply2experimental.py` script requires the experimental images to be in a specific format that is compatible with StrainNet. 
+
+## Applying StrainNet to human flexor tendons *in vivo*
+
+To apply the pretrained models real experimental data, you can use the `flexor_tendon.sh` script. This script will invoke the necessary scripts and pass the appropriate arguments to them.
+
+To run the `flexor_tendon.sh` script, simply execute the following command from the terminal:
+
+```
+. scripts/flexor_tendon.sh
+```
 
 # Citation
 
-<!-- omit in toc -->
-### APA:
+### TBD
 
-Smith, J., & Johnson, J. (2021). The Model: A Novel Approach to Machine Learning. Journal of Machine Learning, 2(1), 1-10.
 
 <!-- omit in toc -->
-### BiBTeX:
+<!-- ### APA:
+
+Smith, J., & Johnson, J. (2021). The Model: A Novel Approach to Machine Learning. Journal of Machine Learning, 2(1), 1-10. -->
+
+<!-- omit in toc -->
+<!-- ### BiBTeX:
 ```
 @article{huff2023StrainNet,
   title={The Model: A Novel Approach to Machine Learning},
@@ -199,8 +255,8 @@ Smith, J., & Johnson, J. (2021). The Model: A Novel Approach to Machine Learning
   pages={1-10},
   year={2021}
 }
-```
+``` -->
 
-# License
+# LICENSE
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
