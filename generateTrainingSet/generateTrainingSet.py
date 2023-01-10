@@ -5,15 +5,22 @@ from tqdm import tqdm
 
 #-- Scripts 
 from core.arguments import generate_args
-import core.utils as utils
-from deformations.tension import applyTension as tension
-from deformations.compression import applyCompression as compression
-from deformations.rigid import applyRigid as rigid
+from core import utils
+# from deformations.tension import applyTension as tension
+# from deformations.compression import applyCompression as compression
+# from deformations.rigid import applyRigid as rigid
+import deformations
+
 from core.processTrainingSet import * 
 
 # Define a function that will create a training set for a given deformation type
 def createTrainingSet(deformation_type, path2images, path2masks, args, COUNT):
-    
+
+    #%% Begin by initializing the deformation maker
+    # Load a random image and mask
+    img, mask = utils.load.image_and_mask(path2images[0], path2masks[0])
+    deformation_maker = deformations.deformation_maker(img, mask, deformation_type, COUNT, args)
+
     #%% Generate the training set for images for a given deformation type 
 
     # Define indices to select the images and masks uniformly to use to generate the training set
@@ -34,24 +41,17 @@ def createTrainingSet(deformation_type, path2images, path2masks, args, COUNT):
     for i in tqdm(range(num_deformations), desc='Generating training set for images in ' + deformation_type):
 
         # Load the image and mask
-        img, mask = utils.loadImageAndMask(path2images[indices[i]], path2masks[indices[i]])
+        img, mask = utils.load.image_and_mask(path2images[indices[i]], path2masks[indices[i]])
 
-        # Define a random field to apply to the image
-        if deformation_type == 'tension':
-            displacement, strain = tension(img, mask, args)
-        elif deformation_type == 'compression':
-            displacement, strain = compression(img, mask, args)
-        elif deformation_type == 'rigid':
-            displacement, strain = rigid(img, mask, args)
-        else:
-            raise ValueError('The deformation type must be either "tension", "compression", or "rigid"')
+        # Update the deformation maker with the new image and mask
+        # as well as the deformation type, the count, and the arguments
+        deformation_maker.update(img, mask, deformation_type, COUNT, args)
 
-        # Warp the image using the displacement field
-        img1, img2 = utils.imwarp(img, displacement)
+        # Get the displacement field and strain field
+        displacement, strain = deformation_maker.deformation
 
-        # Add noise to the second images (if desired)
-        if args.noise > 0.0:
-            img2 = utils.addNoise(img2, args.noise)
+        # Get the images
+        img1, img2 = deformation_maker.images
 
         # Save the images, displacement field, and strain fields
         output_path = os.path.join(args.output_path, deformation_type)
@@ -61,24 +61,27 @@ def createTrainingSet(deformation_type, path2images, path2masks, args, COUNT):
         if args.visualize:
             utils.visualizeData(img1, img2, displacement, strain, output_path, COUNT-1)
 
+        # Increment the count
+        deformation_maker.COUNT = COUNT
+
     return COUNT
 
 #%% Main function
 def main(args):
 
-    # Set the random seed
-    np.random.seed(args.seed)
+    # Set random seeds
+    utils.set_random_seeds(args.seed)
 
     # Define the COUNT variable
     # The COUNT variable is used to keep track of the number of examples that have been generated
     COUNT = 1
 
     # Gather the paths of the images and the masks that will be used to generate the training set
-    path2images = utils.gatherPaths(args.image_path)
-    path2masks  = utils.gatherPaths(args.mask_path)
+    path2images = utils.get.paths(args.image_path)
+    path2masks  = utils.get.paths(args.mask_path)
 
     # Check that the names of the images and masks are the same
-    utils.checkImageMaskFilesNames(path2images, path2masks)    
+    utils.check.image_and_mask_file_names(path2images, path2masks)    
 
     # Generate the training set for images in compression
     COUNT = createTrainingSet('compression', path2images, path2masks, args, COUNT)
