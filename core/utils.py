@@ -5,6 +5,7 @@ import numpy as np
 import torch 
 from torch.utils.data import DataLoader
 from torchvision import transforms
+import re 
 
 #-- Scripts 
 from core.archs import DeformationClassifier
@@ -100,48 +101,8 @@ def get_loss_function(args, model_type):
 
     return loss_function
 
-# Define a function for getting the paths for the images or strains
-def get_paths(path):
-
-    # Get all of the paths 
-    paths = sorted(glob.glob(os.path.join(path, '*/*/*'), recursive=True))
-
-    # Separate the paths for the images and strains
-    image1paths = []
-    image2paths = []
-    strain_xx_paths = []
-    strain_yy_paths = []
-    strain_xy_paths = []
-    for path in paths:
-        if 'im1' in path:
-            image1paths.append(path)
-        elif 'im2' in path:
-            image2paths.append(path)
-        elif 'xx' in path:
-            strain_xx_paths.append(path)
-        elif 'yy' in path:
-            strain_yy_paths.append(path)
-        elif 'xy' in path:
-            strain_xy_paths.append(path)
-
-    # Sort the paths
-    image1paths = sorted(image1paths)
-    image2paths = sorted(image2paths)
-    strain_xx_paths = sorted(strain_xx_paths)
-    strain_yy_paths = sorted(strain_yy_paths)
-    strain_xy_paths = sorted(strain_xy_paths)
-
-    # Create a dictionary of the paths
-    paths = {'image1': image1paths, 
-             'image2': image2paths, 
-             'strain_xx': strain_xx_paths, 
-             'strain_yy': strain_yy_paths, 
-             'strain_xy': strain_xy_paths}
-
-    return paths
-
-# Define a function for getting the paths for the images or strains for evalation
-def get_eval_paths(path, sampling_rate=1):
+# Define a function for getting the paths
+def get_paths(path, sampling_rate=1):
 
     # Get all of the paths 
     paths = sorted(glob.glob(os.path.join(path, '*/*/*'), recursive=True))
@@ -187,6 +148,70 @@ def get_eval_paths(path, sampling_rate=1):
 
     return paths
 
+# Define a function for getting the paths
+def get_sequential_paths(path, sampling_rate=1, custom_sampling=False):
+
+    # Get all of the paths 
+    paths = sorted(glob.glob(os.path.join(path, '*/*'), recursive=True))
+
+    # Separate the paths for the images and strains
+    imagepaths = []
+    strain_xx_paths = []
+    strain_yy_paths = []
+    strain_xy_paths = []
+    for path in paths:
+        if 'im' in path:
+            imagepaths.append(path)
+        elif 'xx' in path:
+            strain_xx_paths.append(path)
+        elif 'yy' in path:
+            strain_yy_paths.append(path)
+        elif 'xy' in path:
+            strain_xy_paths.append(path)
+
+    # Sort the paths
+    imagepaths = sorted(imagepaths)
+    strain_xx_paths = sorted(strain_xx_paths)
+    strain_yy_paths = sorted(strain_yy_paths)
+    strain_xy_paths = sorted(strain_xy_paths)
+
+    # Sample the paths
+    if custom_sampling:
+        imagepaths = [imagepaths[i] for i in custom_sampling]
+        strain_xx_paths = [strain_xx_paths[i] for i in custom_sampling]
+        strain_yy_paths = [strain_yy_paths[i] for i in custom_sampling]
+        strain_xy_paths = [strain_xy_paths[i] for i in custom_sampling]
+    else:
+        imagepaths = imagepaths[::sampling_rate]
+        strain_xx_paths = strain_xx_paths[::sampling_rate]
+        strain_yy_paths = strain_yy_paths[::sampling_rate]
+        strain_xy_paths = strain_xy_paths[::sampling_rate]
+
+    # Image 1 paths will be all of the image paths except the last one
+    image1paths = imagepaths[:-1]
+    # Image 2 paths will be all of the image paths except the first one
+    image2paths = imagepaths[1:]
+    # Strain paths will be all of the strain paths except the first one
+    strain_xx_paths = strain_xx_paths[1:]
+    strain_yy_paths = strain_yy_paths[1:]
+    strain_xy_paths = strain_xy_paths[1:]
+
+    # Print the number of paths
+    print('Number of image1 paths: ', len(image1paths))
+    print('Number of image2 paths: ', len(image2paths))
+    print('Number of strain_xx paths: ', len(strain_xx_paths))
+    print('Number of strain_yy paths: ', len(strain_yy_paths))
+    print('Number of strain_xy paths: ', len(strain_xy_paths))
+
+    # Create a dictionary of the paths
+    paths = {'image1': image1paths, 
+             'image2': image2paths, 
+             'strain_xx': strain_xx_paths, 
+             'strain_yy': strain_yy_paths, 
+             'strain_xy': strain_xy_paths}
+
+    return paths
+
 # Define a function for getting the data loader for training or validation
 def get_data_loader(args, model_type, train=True):
 
@@ -217,17 +242,20 @@ def get_data_loader(args, model_type, train=True):
 def get_eval_data_loader(args):
 
     # Gather the paths for the images and strains
-    paths = get_eval_paths(args.val_data_dir, sampling_rate=args.sampling_rate)
+    if args.sequential:
+        paths = get_sequential_paths(args.val_data_dir, sampling_rate=args.sampling_rate, custom_sampling=args.custom_sampling)
+    else:
+        paths = get_paths(args.val_data_dir, sampling_rate=args.sampling_rate)
 
-    # Loop through the paths and print them 
+    # Print the first five paths
     for key in paths.keys():
         print(key)
-        for path in paths[key]:
+        some_paths = paths[key][:5]
+        for path in some_paths:
             print(path)
 
-    
     # Create DataSet object
-    data_set = Dataset_4_Regression(paths)
+    data_set = Dataset_4_Regression(paths, args.valid_transform)
 
     # Create the data loader
     data_loader = DataLoader(data_set, batch_size=args.batch_size, shuffle=False)
@@ -273,19 +301,22 @@ def get_transform(args, transform_type):
         transform = transforms.Compose([
                                         transforms.ToPILImage(),
                                         transforms.Resize((args.input_height, args.input_width)),
-                                        transforms.ToTensor()
+                                        transforms.ToTensor(),
+                                        transforms.Lambda(lambda x: x.squeeze(0))
                                         ])
     elif transform_type == 'valid':
         transform = transforms.Compose([
                                         transforms.ToPILImage(),
                                         transforms.Resize((args.input_height, args.input_width)),
-                                        transforms.ToTensor()
+                                        transforms.ToTensor(),
+                                        transforms.Lambda(lambda x: x.squeeze(0))
                                         ])
     elif transform_type == 'test':
         transform = transforms.Compose([
                                         transforms.ToPILImage(),
                                         transforms.Resize((args.input_height, args.input_width)),
-                                        transforms.ToTensor()
+                                        transforms.ToTensor(),
+                                        transforms.Lambda(lambda x: x.squeeze(0))
                                         ])
     else:
         raise ValueError('Invalid transform type')
@@ -319,9 +350,6 @@ def get_deformation_class(strains):
 
 # Define a function for getting the deformation type 
 def get_deformation_type(class_pred):
-    
-    # Convert the class prediction to the deformation type
-    class_pred = softmax_to_class(class_pred)
 
     # Get the deformation type
     if class_pred == 1:
@@ -401,6 +429,21 @@ def get_eval_data_dirs(args):
 
     return args
 
+# Define a function for getting the current frame number 
+def get_frame_number(data_loader, init=False):
+    
+    # Get the current frame number
+    im1_path, im2_path = data_loader.dataset.get_im_paths()
+    # Isolate the file name
+    im1_fn, im2_fn = os.path.basename(im1_path), os.path.basename(im2_path)
+    # Isolate the frame number from the file name
+    # Note the frame could be anywhere in the file name
+    im1_frame_num, im2_frame_num = int(re.findall(r'\d+', im1_fn)[0]), int(re.findall(r'\d+', im2_fn)[0])
+
+    if init:
+        return im1_frame_num
+    else:
+        return im2_frame_num
 
 # Define a function setting the random seeds
 def set_random_seeds(seed):
