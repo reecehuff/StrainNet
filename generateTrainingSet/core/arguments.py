@@ -20,9 +20,9 @@ def generate_args():
     parser.add_argument('--output_path', type=str, default='generateTrainingSet/output', help='The path to the directory that will contain the training set.')
 
     # Define the number of examples to generate for each deformation type
-    N_tension = 10
-    N_compression = 10
-    N_rigid = 10
+    N_tension = 1250
+    N_compression = 1250
+    N_rigid = 1250
     parser.add_argument('--N_tension', type=int, default=N_tension, help='The number of examples to generate for images in tension.')
     parser.add_argument('--N_compression', type=int, default=N_compression, help='The number of examples to generate for images in compression.')
     parser.add_argument('--N_rigid', type=int, default=N_rigid, help='The number of examples to generate for images in rigid motion.')
@@ -32,13 +32,15 @@ def generate_args():
 
     #%% Define the parameters for the tension and comopression deformation
     # Define the minimum and maximum values of the longitudinal strain
-    min_epsilon_xx = 0.04
-    max_epsilon_xx = 0.16
+    min_epsilon_xx = 2.0  / 100.0 # 2.0 % strain
+    max_epsilon_xx = 20.0 / 100.0 # 20.0 % strain
     parser.add_argument('--min_epsilon_xx', type=float, default=min_epsilon_xx, help='The minimum value of epsilon_xx.')
     parser.add_argument('--max_epsilon_xx', type=float, default=max_epsilon_xx, help='The maximum value of epsilon_xx.')
     # The minimum and maximum values of longitudinal strain will be reached in how many frames
-    N_frames_to_reach_max_epsilon_xx = 10
-    parser.add_argument('--N_frames_to_reach_max_epsilon_xx', type=int, default=N_frames_to_reach_max_epsilon_xx, help='The number of frames to reach the maximum value of epsilon_xx.')
+    min_num_frames = 5
+    max_num_frames = 15
+    parser.add_argument('--min_num_frames', type=int, default=min_num_frames, help='The minimum number of frames to reach the maximum value of epsilon_xx.')
+    parser.add_argument('--max_num_frames', type=int, default=max_num_frames, help='The maximum number of frames to reach the maximum value of epsilon_xx.')
     # Define the minimum and maximum values of the Poisson's ratio
     min_nu = 0.5
     max_nu = 0.5
