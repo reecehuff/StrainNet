@@ -36,6 +36,9 @@ class Dataset_4_Regression(data.Dataset):
     
     def __getitem__(self, index):
 
+        # Save the index
+        self.index = index
+
         # Load the image pair
         image1 = cv2.imread(self.paths['image1'][index], cv2.IMREAD_GRAYSCALE)
         image2 = cv2.imread(self.paths['image2'][index], cv2.IMREAD_GRAYSCALE)
@@ -53,18 +56,25 @@ class Dataset_4_Regression(data.Dataset):
         strain_XX = strain_XX.astype('float32')
         strain_XY = strain_XY.astype('float32')
         strain_YY = strain_YY.astype('float32')
+        
+        # Apply the transform
+        if self.transform:
+            image1 = self.transform(image1)
+            image2 = self.transform(image2)
+            strain_XX = self.transform(strain_XX)
+            strain_XY = self.transform(strain_XY)
+            strain_YY = self.transform(strain_YY)
 
         # Stack the images
         images = utils.stack([image1, image2])
 
         # Stack the strain images
-        strains = utils.stack([strain_XX, strain_YY, strain_XY])
-
-        # Apply the transform
-        if self.transform:
-            images = self.transform(images)
+        strains = utils.stack([strain_XX, strain_XY, strain_YY])
 
         return images, strains
+
+    def get_im_paths(self):
+        return self.paths['image1'][self.index], self.paths['image2'][self.index]
 
 #%% A classifier dataset that will be used to train the DeformationClassifier
 
@@ -94,6 +104,9 @@ class Dataset_4_Classification(data.Dataset):
         return len(self.paths['image1'])
 
     def __getitem__(self, index):
+
+        # Save the index
+        self.index = index
             
         # Load the image pair
         image1 = cv2.imread(self.paths['image1'][index], cv2.IMREAD_GRAYSCALE)
@@ -113,20 +126,27 @@ class Dataset_4_Classification(data.Dataset):
         strain_XY = strain_XY.astype('float32')
         strain_YY = strain_YY.astype('float32')
 
+        # Apply the transform
+        if self.transform:
+            image1 = self.transform(image1)
+            image2 = self.transform(image2)
+            strain_XX = self.transform(strain_XX)
+            strain_XY = self.transform(strain_XY)
+            strain_YY = self.transform(strain_YY)
+
         # Stack the images
         images = utils.stack([image1, image2])
 
         # Stack the strain images
-        strains = utils.stack([strain_XX, strain_YY, strain_XY])
-
-        # Apply the transform
-        if self.transform:
-            images = self.transform(images)
+        strains = utils.stack([strain_XX, strain_XY, strain_YY])
 
         # Get the deformation class
         deformation_class = utils.get_deformation_class(strains)
 
         return images, deformation_class
+
+    def get_im_paths(self):
+        return self.paths['image1'][self.index], self.paths['image2'][self.index]
 
 #%% A class for the experimental dataset
 class Dataset_Experimental(data.Dataset):
