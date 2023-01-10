@@ -8,7 +8,7 @@ from core import utils
 #%% Define the main function for evaluation
 def main(args):
     
-    # Set the random seed
+    # Set random seeds
     utils.set_random_seeds(args.seed)
     
     # There are two options for evaluation:
@@ -18,6 +18,9 @@ def main(args):
     # then you can see apply2experimental.py
     args = utils.get_eval_data_dirs(args)
     eval_model(args, args.sequential)
+
+    # Print a message to the user
+    print("Evaluation complete!")
 
 # Run the main function
 if __name__ == "__main__":
