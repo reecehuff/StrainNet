@@ -4,6 +4,7 @@ import datetime
 import pandas as pd
 import os 
 import torch 
+import numpy as np
 
 #-- Scripts
 from core import utils
@@ -63,7 +64,7 @@ def train_args():
     parser.add_argument('--lr', type=float, default=0.001, help='The learning rate to use.')
 
     # Define the optimizer
-    parser.add_argument('--optimizer', type=str, default='Adam', help='The optimizer to use.')
+    parser.add_argument('--optimizer', type=str, default='Adam', choices=['Adam', 'SGD', 'RMSProp'],  help='The optimizer to use.')
 
     # Define the log directory
     log_dir = 'runs/' + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
@@ -118,9 +119,6 @@ def train_args():
 
     # Add the validation transform
     args.valid_transform = utils.get_transform(args, 'valid')
-
-    # Add the test transform
-    args.test_transform = utils.get_transform(args, 'test')
 
     # Save the args as a xlsx file
     args_df = pd.DataFrame.from_dict(vars(args), orient='index')
@@ -185,7 +183,7 @@ def eval_args():
     parser.add_argument('--model_dir', type=str, default=model_dir, help='The model directory to use.')
 
     # Define the log directory
-    log_dir = 'results/' + 'pretrained/synthetic/' 
+    log_dir = 'results/' + 'pretrained.synthetic/' 
     parser.add_argument('--log_dir', type=str, default=log_dir, help='The log directory to use.')
 
     # Define the name of the dataset
@@ -199,11 +197,17 @@ def eval_args():
     # Define whether to visualize the data
     parser.add_argument('--visualize', action='store_true', help='Whether to visualize the data.')
 
+    # Define whether to save the strains
+    parser.add_argument('--save_strains', action='store_true', help='Whether to save the strains.')
+
     # Add an argument for dealing with sequential data such as the synthetic test cases
     parser.add_argument('--sequential', action='store_true', help='Whether the data is sequential.')
 
     # Add an argument the sampling rate of the sequential data
     parser.add_argument('--sampling_rate', type=int, default=1, help='The sampling rate of the sequential data.')
+
+    # Add an argument for specifying a custom sampling for the sequential data
+    parser.add_argument('--custom_sampling', action='store_true', help='Whether to use a custom sampling for the sequential data.')
     
     # Just need this argument to keep the same interface as the evaluation script
     parser.add_argument('--resume', type=str, default=None, help='Keep this argument even though it serves no purpose for evaluation.')
@@ -226,8 +230,12 @@ def eval_args():
     # Add the validation transform
     args.valid_transform = utils.get_transform(args, 'valid')
 
-    # Add the test transform
-    args.test_transform = utils.get_transform(args, 'test')
+    # Add custom sampling if specified
+    # For the synthetic test cases, we use a custom sampling
+    # We sample at a rate of 30 for the first 300 frames, then 50 for next 500 frames, and then 30 for the last 300 frames
+    # e.g., [0, 30, 60, ..., 300, 350, 400, ..., 800, 830, 860, ..., 1100]
+    if args.custom_sampling:
+        args.custom_sampling = [0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 350, 400, 450, 500, 550, 600, 650, 700, 750, 800, 830, 860, 890, 920, 950, 980, 1010, 1040, 1070, 1100]
 
     # Save the args as a xlsx file
     args_df = pd.DataFrame.from_dict(vars(args), orient='index')
