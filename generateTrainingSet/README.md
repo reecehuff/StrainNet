@@ -7,7 +7,7 @@ StrainNet is a two-stage deep neural network for measuring strain (i.e., deforma
 To get a feel for what this subdirectory does, simply run
 
 ```
-python generateTrainingSet/generateTraining.py --visualize --N_tension 5 --N_compression 5 --N_rigid 5
+python generateTrainingSet/generateTrainingSet.py --visualize --N_tension 5 --N_compression 5 --N_rigid 5
 ```
 
 This command will create a small training set of 5 examples of images undergoing tensile, compressive, and rigid deformation for a total of 15 examples. You should now see the complete training set in the `output` folder, i.e., 
