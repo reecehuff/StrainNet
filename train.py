@@ -21,6 +21,9 @@ def main(args):
     else:
         args = utils.get_data_dirs(args)
         train_model(args, args.model_type)
+    
+    # Print a message to the user
+    print("Training complete!")
 
 # Run the main function
 if __name__ == "__main__":
