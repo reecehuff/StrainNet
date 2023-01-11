@@ -36,13 +36,13 @@ Please look in one of the `📂visualize` folder to see an examples of deformati
 
 ![visualization](../figures/visualization_example.png)
 
-You'll note that is a non-linear strain field applied to the image over the region where the tendon exists. 
+You'll note that is a strain field applied to the image over the region where the tendon exists. 
 
 The set of images and strains are processed and split into training and validation sets and copied to the `datasets` folder, i.e., 
 
 ```
 📦datasets
- ┗ 📂train_set_N_tension_10_N_compression_10_N_rigid_10
+ ┗ 📂train_set_N_tension_5_N_compression_5_N_rigid_5
  ┃ ┣ 📂training
  ┃ ┃ ┣ 📂compression
  ┃ ┃ ┃ ┣ 📂images
@@ -66,12 +66,12 @@ The set of images and strains are processed and split into training and validati
  ┃ ┗ 📜args.xlsx
 ```
 
-To create a much larger training set (the default arguments creates one with 3600 examples in total), run
+To create a much larger training set (the default arguments creates one with 3750 examples in total), run
 
 ```
 python generateTrainingSet/generateTraining.py
 ```
-*Note*: The ```--visualize``` flag was excluded mostly because it increases the run time significantly. 
+*Note*: The ```--visualize``` flag is excluded because it increases the run time significantly. 
 
 # Full Tutorial 
 
