@@ -4,14 +4,10 @@ import os
 from tqdm import tqdm
 
 #-- Scripts 
-from core.arguments import generate_args
 from core import utils
-# from deformations.tension import applyTension as tension
-# from deformations.compression import applyCompression as compression
-# from deformations.rigid import applyRigid as rigid
+from core.arguments import generate_args
+from core.processTrainingSet import copyDataAndSplitIntoTrainingAndValidation
 import deformations
-
-from core.processTrainingSet import * 
 
 # Define a function that will create a training set for a given deformation type
 def createTrainingSet(deformation_type, path2images, path2masks, args, COUNT):
@@ -52,6 +48,9 @@ def createTrainingSet(deformation_type, path2images, path2masks, args, COUNT):
 
         # Get the images
         img1, img2 = deformation_maker.images
+
+        # Make sure that the images, displacement field, and strain field are the correct size
+        assert img1.shape == img2.shape == displacement.shape[:2] == strain.shape[:2] == (args.output_height, args.output_width)
 
         # Save the images, displacement field, and strain fields
         output_path = os.path.join(args.output_path, deformation_type)
