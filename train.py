@@ -1,4 +1,5 @@
 #%% Imports
+import copy
 
 #-- Scripts 
 from core.arguments import train_args
@@ -10,16 +11,34 @@ def main(args):
     
     # Set the random seed
     utils.set_random_seeds(args.seed)
-    
+
+    # Isolate the model types from the arguments
+    model_types = args.model_types
+
+    # Save the initial arguments
+    init_args = copy.deepcopy(args)
+
     # Train each of the models 
     if args.train_all:
-        for model_type in args.model_types:
+        for model_type in model_types:
+            # Print a message to the user
+            print("Training " + model_type + "...")
+            # The args change throughout training so we need to reset them
+            args = copy.deepcopy(init_args)
+            # Set the model type
             args.model_type = model_type
+            # Get the data directories
             args = utils.get_data_dirs(args)
+            # Train the model
             train_model(args, args.model_type)
+
     # Or train a single model
     else:
+        # Print a message to the user
+        print("Training " + args.model_type + "...")
+        # Get the data directories
         args = utils.get_data_dirs(args)
+        # Train the model
         train_model(args, args.model_type)
     
     # Print a message to the user
