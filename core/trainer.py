@@ -1,4 +1,5 @@
 #%% Imports
+import os
 import torch 
 from tqdm import tqdm
 from torch.utils.tensorboard import SummaryWriter
@@ -14,7 +15,7 @@ def train_model(args, model_type):
     
     # Initialize the model
     if args.resume:
-        model = utils.load_model(args, model_type, train=False)
+        model = utils.load_model(args, model_type, train=True)
     else:
         model = utils.initialize_model(args, model_type, train=True)
 
@@ -29,7 +30,7 @@ def train_model(args, model_type):
     val_data_loader = utils.get_data_loader(args, model_type, train=False)
 
     # Define a tensorboard writer
-    writer = SummaryWriter(args.log_dir)
+    writer = SummaryWriter(os.path.join(args.log_dir, model_type))
 
     # Train the model
     for epoch in tqdm(range(args.epochs), desc='Training ' + model_type):
