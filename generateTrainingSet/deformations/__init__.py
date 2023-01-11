@@ -47,13 +47,13 @@ class deformation_maker(object):
         # Zeros out the displacement field and strain fields
         self.initialize_displacement_field_and_strain()
 
-        # Update the displacement field and strain fields
-        self.calculate()
-        self.deformation        = [self.displacement_field, self.strain]
-
         # Update the output images
         self.im1, self.im2 = self.imwarp(self.img, self.displacement_field)
         self.images = [self.im1, self.im2]
+
+        # Update the displacement field and strain fields
+        self.calculate()
+        self.deformation        = [self.displacement_field, self.strain]
 
     def defineDeformationFunction(self, deformation_type, COUNT):
 
@@ -86,12 +86,14 @@ class deformation_maker(object):
             # Import the rigid functions
             from . import rigid
             # Depending on the count and deformation type, define the deformation function
-            count_remainder = COUNT % 2 + 1
+            count_remainder = COUNT % 3 + 1
             # Define the deformation function
             if count_remainder == 1:
                 self.deformation_function = rigid.one()
             elif count_remainder == 2:
                 self.deformation_function = rigid.two()
+            elif count_remainder == 3:
+                self.deformation_function = rigid.three()
 
     def image_and_mask_properties(self, img, mask):
 
@@ -164,9 +166,17 @@ class deformation_maker(object):
         # Define the parameters for the tensile deformation
         epsilon_xx_center = np.random.uniform(args.min_epsilon_xx, args.max_epsilon_xx)
         epsilon_xx_edge   = np.random.uniform(args.min_epsilon_xx, args.max_epsilon_xx)
+
+        # Define the parameters for the linear compression deformation
+        epsilon_xx_distal = np.random.uniform(args.min_epsilon_xx, args.max_epsilon_xx)
+        epsilon_xx_proximal = np.random.uniform(args.min_epsilon_xx, args.max_epsilon_xx)
+
         # Normalize the random parameters
         epsilon_xx_center = epsilon_xx_center / num_frames
         epsilon_xx_edge   = epsilon_xx_edge / num_frames
+        epsilon_xx_distal = epsilon_xx_distal / num_frames
+        epsilon_xx_proximal = epsilon_xx_proximal / num_frames
+
         # Poisson's ratio 
         nu = np.random.uniform(args.min_nu, args.max_nu)
 
@@ -176,6 +186,8 @@ class deformation_maker(object):
         # Save the new parameters to self
         self.epsilon_xx_center = epsilon_xx_center
         self.epsilon_xx_edge = epsilon_xx_edge
+        self.epsilon_xx_distal = epsilon_xx_distal
+        self.epsilon_xx_proximal = epsilon_xx_proximal
         self.nu = nu
         self.a = a 
 
@@ -188,17 +200,25 @@ class deformation_maker(object):
         # Number of frames for the compression
         num_frames = np.random.uniform(args.min_num_frames, args.max_num_frames)
 
-        # Define the parameters for the compression deformation
+        # Define the parameters for the quadratic compression deformation
         epsilon_xx_center = np.random.uniform(args.min_epsilon_xx, args.max_epsilon_xx)
         epsilon_xx_edge   = np.random.uniform(args.min_epsilon_xx, args.max_epsilon_xx)
+
+        # Define the parameters for the linear compression deformation
+        epsilon_xx_distal = np.random.uniform(args.min_epsilon_xx, args.max_epsilon_xx)
+        epsilon_xx_proximal = np.random.uniform(args.min_epsilon_xx, args.max_epsilon_xx)
 
         # Normalize the strain by the number of frames
         epsilon_xx_center = epsilon_xx_center / num_frames
         epsilon_xx_edge   = epsilon_xx_edge / num_frames
+        epsilon_xx_distal = epsilon_xx_distal / num_frames
+        epsilon_xx_proximal = epsilon_xx_proximal / num_frames
 
         # Since its in compression, the strain should be negative
         epsilon_xx_center = -epsilon_xx_center
         epsilon_xx_edge   = -epsilon_xx_edge
+        epsilon_xx_distal = -epsilon_xx_distal
+        epsilon_xx_proximal = -epsilon_xx_proximal
 
         # Poisson's ratio 
         nu = np.random.uniform(args.min_nu, args.max_nu)
@@ -209,6 +229,8 @@ class deformation_maker(object):
         # Save the new parameters to self
         self.epsilon_xx_center = epsilon_xx_center
         self.epsilon_xx_edge = epsilon_xx_edge
+        self.epsilon_xx_distal = epsilon_xx_distal
+        self.epsilon_xx_proximal = epsilon_xx_proximal
         self.nu = nu
         self.a = a 
 
@@ -222,15 +244,21 @@ class deformation_maker(object):
         self.u_y            = np.random.uniform(args.min_displacement,      args.max_displacement)
         self.rotation       = np.random.uniform(args.min_rotation_angle,    args.max_rotation_angle)
 
+        # rigid.two and rigid.three require the tension and compression parameters
+        if np.random.uniform() > 0.5:
+            self.randomTensionParameters()
+        else:
+            self.randomCompressionParameters()
+
     def calculate(self):
         # Calculate the displacement
         self.displacement_x, self.displacement_y = self.deformation_function.calculateDisplacement(self)
         # Calculate the strain
         self.strain_xx, self.strain_yy, self.strain_xy = self.deformation_function.calculateStrain(self)
         # Package the displacement and strain 
-        self.displacement_field, self.strain = self.packageDisplacementAndStrain(self.displacement_field, self.strain)
+        self.displacement_field, self.strain = self.processDisplacementAndStrain(self.displacement_field, self.strain)
 
-    def packageDisplacementAndStrain(self, displacement_field, strain):
+    def processDisplacementAndStrain(self, displacement_field, strain):
 
         # Unpack the arguments
         displacement_field = self.displacement_field
@@ -249,6 +277,10 @@ class deformation_maker(object):
         strain[y, x, 0] = strain_xx
         strain[y, x, 1] = strain_yy
         strain[y, x, 2] = strain_xy
+
+        # Crop the displacement field and strain field
+        displacement_field  = self.crop(displacement_field)
+        strain              = self.crop(strain)
 
         return displacement_field, strain
 
@@ -278,8 +310,21 @@ class deformation_maker(object):
         displacement_field_4_warping[:,:,1] += np.arange(h)[:,np.newaxis]
         img2 = cv2.remap(img, displacement_field_4_warping, None, cv2.INTER_LINEAR)
 
+        # If the deformation function is a rigid.two or rigid.three
+        # Import the necessary functions
+        from . import rigid
+        if isinstance(self.deformation_function, rigid.two) or isinstance(self.deformation_function, rigid.three):
+            # Both images are the same
+            img1 = img2.copy()
+
+        # Add noise to the imgs if desired
         if self.args.noise > 0.0:
+            img1 = self.add_noise(img1)
             img2 = self.add_noise(img2)
+
+        # Crop the images
+        img1 = self.crop(img1)
+        img2 = self.crop(img2)
 
         return img1, img2
 
@@ -303,3 +348,19 @@ class deformation_maker(object):
         img = np.clip(img, 0, 255)
 
         return img
+
+    def crop(self, array):
+        """
+        crop crops the array.
+        """
+        # Unpack the arguments
+        args = self.args
+        output_height = args.output_height
+        output_width = args.output_width
+        upper_left_corner_x = args.upper_left_corner_x
+        upper_left_corner_y = args.upper_left_corner_y
+    
+        # Crop the array
+        array = array[upper_left_corner_y:upper_left_corner_y+output_height, upper_left_corner_x:upper_left_corner_x+output_width]
+
+        return array
