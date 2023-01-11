@@ -1,6 +1,6 @@
 datasets/*
 generateTrainingSet/output/*
-generateTrainingSet/inputs/*
+generateTrainingSet/input/*
 .DS_Store
 generateTrainingSet/.DS_Store
 logs/ 
