@@ -28,9 +28,13 @@ def initialize_model(args, model_type, train=False):
     elif model_type == 'RigidNet':
         model = UNet(args)
         model_name = args.RigidNet_name
+    
+    # Initialize the model
+    print('Initializing model in: {}'.format(os.path.join(args.model_dir, model_name + '.pt')))
 
     # Send the model to the device
     model.to(args.device)
+
     # Set the model to training or evaluation
     if train:
         model.train()
@@ -58,8 +62,8 @@ def load_model(args, model_type, train=False):
 
     # Load the model
     if args.resume:
-        print('Loading model from: {}'.format(args.resume))
-        model.load_state_dict(torch.load(args.resume, map_location=torch.device(args.device)))
+        print('Resuming training on: {}'.format(os.path.join(args.resume, model_name + '.pt')))
+        model.load_state_dict(torch.load(os.path.join(args.resume, model_name + '.pt'), map_location=torch.device(args.device)))
     else:
         print('Loading model from: {}'.format(os.path.join(args.model_dir, model_name + '.pt')))
         model.load_state_dict(torch.load(os.path.join(args.model_dir, model_name + '.pt'), map_location=torch.device(args.device)))
@@ -105,7 +109,18 @@ def get_loss_function(args, model_type):
 def get_paths(path, sampling_rate=1):
 
     # Get all of the paths 
-    paths = sorted(glob.glob(os.path.join(path, '*/*/*'), recursive=True))
+    # The depth of the paths to search depends on where the data is stored
+    # Therefore, we will increase the depth until we find the data
+    max_depth = 10
+    for i in range(max_depth):
+        depth = "/*" * i + "/*.*"
+        depth = depth[1:]
+        paths = sorted(glob.glob(os.path.join(path, depth), recursive=True))
+        if len(paths) != 0:
+            break
+        if i == max_depth - 1:
+            raise Exception('No data is present in the path you specified')
+
 
     # Separate the paths for the images and strains
     image1paths = []
@@ -152,7 +167,17 @@ def get_paths(path, sampling_rate=1):
 def get_sequential_paths(path, sampling_rate=1, custom_sampling=False):
 
     # Get all of the paths 
-    paths = sorted(glob.glob(os.path.join(path, '*/*'), recursive=True))
+    # The depth of the paths to search depends on where the data is stored
+    # Therefore, we will increase the depth until we find the data
+    max_depth = 10
+    for i in range(max_depth):
+        depth = "/*" * i + "/*.*"
+        depth = depth[1:]
+        paths = sorted(glob.glob(os.path.join(path, depth), recursive=True))
+        if len(paths) != 0:
+            break
+        if i == max_depth - 1:
+            raise Exception('No data is present in the path you specified')
 
     # Separate the paths for the images and strains
     imagepaths = []
@@ -224,14 +249,14 @@ def get_data_loader(args, model_type, train=True):
     # Create DataSet objects
     if model_type == 'DeformationClassifier':
         if train:
-            data_set = Dataset_4_Classification(paths)
+            data_set = Dataset_4_Classification(paths, transform=args.train_transform)
         else:
-            data_set = Dataset_4_Classification(paths)
+            data_set = Dataset_4_Classification(paths, transform=args.valid_transform)
     else:
         if train:
-            data_set = Dataset_4_Regression(paths)
+            data_set = Dataset_4_Regression(paths, transform=args.train_transform)
         else:
-            data_set = Dataset_4_Regression(paths)
+            data_set = Dataset_4_Regression(paths, transform=args.valid_transform)
 
     # Create the data loader
     data_loader = DataLoader(data_set, batch_size=args.batch_size, shuffle=train)
