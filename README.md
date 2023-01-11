@@ -62,7 +62,7 @@ should display the path to the Anaconda's environment Python path, *e.g.*, `/opt
 
 To download the data and pretrained models for this project, you can use the [`download.sh`](scripts/download.sh) script. This script will download the data and models from a remote server and save them to your local machine.
 
-**Warning: The data is approximately 10 GB in size and may take some time to download.**
+**Warning: The data is approximately 15 GB in size and may take some time to download.**
 
 To download the data and models, run the following command:
 
@@ -70,7 +70,7 @@ To download the data and models, run the following command:
 . scripts/download.sh
 ```
 
-This will download the data and models and save them to the current working directory. The data and models may be stored in subdirectories within the current working directory.
+This will download the data and models and save them to the current working directory. See the `datasets` for all of the ultrasound images (both synthetic and experimentally collected) and see the `models` folder for the pre-trained StrainNet models. 
 
 ## Demo: Applying StrainNet to a Synthetic Test Case
 
