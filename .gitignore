@@ -1,4 +1,4 @@
-datasets/
+datasets/*
 generateTrainingSet/output/*
 .DS_Store
 generateTrainingSet/.DS_Store
@@ -6,6 +6,7 @@ logs/
 runs/
 models/*
 results/*
+__MACOSX/*
 
 #---------------------BELOW IS FOR THE PYTHON TEMPLATE FROM GIT------------------#
 
