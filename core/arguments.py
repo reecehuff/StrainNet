@@ -20,15 +20,15 @@ def train_args():
     # Define the device to use
     parser.add_argument('--device', type=str, default='cuda', help='The device to use.')
 
+    # Define the model type
+    parser.add_argument('--model_type', type=str, default='DeformationClassifier', help='The model type to train.')
+
     # Define the model types 
     model_types = ['DeformationClassifier', 'TensionNet', 'CompressionNet', 'RigidNet']
-    parser.add_argument('--model_types', type=str, default=model_types, help='The model types to train.')
+    parser.add_argument('--model_types', nargs='+', default=model_types, help='The model types to train.')
 
     # If you wish to train all of the models
     parser.add_argument('--train_all', action='store_true', help='Whether to train all of the models.')
-
-    # Define the model type
-    parser.add_argument('--model_type', type=str, default='DeformationClassifier', help='The model type to train.')
 
     # Define the model name of the DeformationClassifier
     parser.add_argument('--DeformationClassifier_name', type=str, default='DeformationClassifier', help='The model name of the DeformationClassifier.')
@@ -66,16 +66,20 @@ def train_args():
     # Define the optimizer
     parser.add_argument('--optimizer', type=str, default='Adam', choices=['Adam', 'SGD', 'RMSProp'],  help='The optimizer to use.')
 
+    # Define the name of your experiment
+    experiment_name = 'training'
+    parser.add_argument('--experiment_name', type=str, default=experiment_name, help='The name of your experiment.')
+
     # Define the log directory
-    log_dir = 'runs/' + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+    log_dir = 'runs/' # Note will tack on the experiment name after the arguments are parsed
     parser.add_argument('--log_dir', type=str, default=log_dir, help='The log directory to use.')
     
     # Define the model directory
-    model_dir = 'models/' + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+    model_dir = 'models/' # Note will tack on the experiment name after the arguments are parsed
     parser.add_argument('--model_dir', type=str, default=model_dir, help='The model directory to use.')
 
     # Define the name of the dataset
-    dataset_name = 'train_set_N_tension_10_N_compression_10_N_rigid_10'
+    dataset_name = 'train_set_N_tension_5_N_compression_5_N_rigid_5'
     parser.add_argument('--dataset_name', type=str, default=dataset_name, help='The name of the dataset.')
 
     # Define the location of the training data
@@ -89,11 +93,20 @@ def train_args():
     # Define whether to visualize the data
     parser.add_argument('--visualize', action='store_true', help='Whether to visualize the data.')
 
-    # Add an argument for resuming training that is a path to the model
+    # Add an argument for resuming training that is a path to the direction where the model (the .pt file) is located
     parser.add_argument('--resume', type=str, default=None, help='The path to the model to resume training from.')
 
     # Parse the arguments
     args = parser.parse_args()
+
+    # Tack on a timestamp to the experiment name
+    args.experiment_name = args.experiment_name + '_' + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+
+    # Add the experiment name to the log directory
+    args.log_dir = os.path.join(args.log_dir, args.experiment_name)
+
+    # Add the experiment name to the model directory
+    args.model_dir = os.path.join(args.model_dir, args.experiment_name)
 
     # Create a directory for logging the results
     if not os.path.exists(args.log_dir):
@@ -187,7 +200,7 @@ def eval_args():
     parser.add_argument('--log_dir', type=str, default=log_dir, help='The log directory to use.')
 
     # Define the name of the dataset
-    dataset_name = 'train_set_N_tension_10_N_compression_10_N_rigid_10'
+    dataset_name = 'train_set_N_tension_5_N_compression_5_N_rigid_5'
     parser.add_argument('--dataset_name', type=str, default=dataset_name, help='The name of the dataset.')
 
     # Define the location of the validation data
