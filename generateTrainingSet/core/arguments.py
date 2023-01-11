@@ -1,6 +1,5 @@
 #%% Imports
 import argparse
-import datetime
 import pandas as pd
 import os 
 
@@ -59,16 +58,27 @@ def generate_args():
     parser.add_argument('--min_displacement', type=float, default=min_displacement, help='The minimum value of the displacement.')
     parser.add_argument('--max_displacement', type=float, default=max_displacement, help='The maximum value of the displacement.')
 
+    #%% Define the cropping parameters
+    # Full size input image is [768, 256]
+    # Define the output image size
+    output_height = 384 # UNet prefers when the height and width are divisible by 32
+    output_width = 192  # UNet prefers when the height and width are divisible by 32
+    parser.add_argument('--output_height', type=int, default=output_height, help='The height of the output image.')
+    parser.add_argument('--output_width', type=int, default=output_width, help='The width of the output image.')
+    # Define the upper left corner of the cropping region
+    upper_left_corner_x = 60
+    upper_left_corner_y = 32
+    parser.add_argument('--upper_left_corner_x', type=int, default=upper_left_corner_x, help='The x coordinate of the upper left corner of the cropping region.')
+    parser.add_argument('--upper_left_corner_y', type=int, default=upper_left_corner_y, help='The y coordinate of the upper left corner of the cropping region.')
+
     #%% Define whether to visualize the data
     parser.add_argument('--visualize', action='store_true', help='Whether to visualize the data.')
 
     #%% Define the parameters for finalized training set 
     # Define the name of the training set
     # The training set name will include the number of examples for each deformation type
-    train_set_name = 'train_set_N_tension_' + str(N_tension) + '_N_compression_' + str(N_compression) + '_N_rigid_' + str(N_rigid)
-    # Tack on a timestamp
-    # train_set_name = train_set_name + '_' + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
-    parser.add_argument('--training_set_name', type=str, default=train_set_name, help='The name of the training set.')
+    default_train_set_name = 'training_set'
+    parser.add_argument('--training_set_name', type=str, default=default_train_set_name, help='The name of the training set.')
     # Define the path to the directory that contains the finalized training set
     parser.add_argument('--finalized_training_set_dir', type=str, default='datasets', help='The path to the directory to save the finalized training set.')
     # Define the percentage of the training set to use for training
@@ -76,6 +86,10 @@ def generate_args():
 
     # Parse the arguments
     args = parser.parse_args()
+
+    # If you did not specify a training set name, then create one
+    if args.training_set_name == default_train_set_name:
+        args.training_set_name = 'train_set_N_tension_' + str(args.N_tension) + '_N_compression_' + str(args.N_compression) + '_N_rigid_' + str(args.N_rigid)
 
     # Loop through the arguments and print them
     print('================================================================')
