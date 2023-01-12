@@ -47,13 +47,20 @@ class deformation_maker(object):
         # Zeros out the displacement field and strain fields
         self.initialize_displacement_field_and_strain()
 
-        # Update the output images
-        self.im1, self.im2 = self.imwarp(self.img, self.displacement_field)
-        self.images = [self.im1, self.im2]
-
         # Update the displacement field and strain fields
         self.calculate()
-        self.deformation        = [self.displacement_field, self.strain]
+        
+        # Update the output images
+        self.im1, self.im2 = self.imwarp(self.img, self.displacement_field)
+
+        # Crop the images, displacement field, and strain
+        self.im1, self.im2 = self.crop(self.im1), self.crop(self.im2)
+        self.displacement_field = self.crop(self.displacement_field)
+        self.strain = self.crop(self.strain)
+
+        # Package the final outputs (the images and the deformation fields)
+        self.deformation    = [self.displacement_field, self.strain]
+        self.images         = [self.im1, self.im2]
 
     def defineDeformationFunction(self, deformation_type, COUNT):
 
@@ -278,10 +285,6 @@ class deformation_maker(object):
         strain[y, x, 1] = strain_yy
         strain[y, x, 2] = strain_xy
 
-        # Crop the displacement field and strain field
-        displacement_field  = self.crop(displacement_field)
-        strain              = self.crop(strain)
-
         return displacement_field, strain
 
     # Define a function that warps the image using the displacement field
@@ -313,18 +316,16 @@ class deformation_maker(object):
         # If the deformation function is a rigid.two or rigid.three
         # Import the necessary functions
         from . import rigid
+        print(self.deformation_function)
         if isinstance(self.deformation_function, rigid.two) or isinstance(self.deformation_function, rigid.three):
             # Both images are the same
+            print("Copying image over")
             img1 = img2.copy()
 
         # Add noise to the imgs if desired
         if self.args.noise > 0.0:
             img1 = self.add_noise(img1)
             img2 = self.add_noise(img2)
-
-        # Crop the images
-        img1 = self.crop(img1)
-        img2 = self.crop(img2)
 
         return img1, img2
 
