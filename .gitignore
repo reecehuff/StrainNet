@@ -8,6 +8,8 @@ runs/
 models/*
 results/*
 __MACOSX/*
+augment.py
+scripts/testing.sh
 
 #---------------------BELOW IS FOR THE PYTHON TEMPLATE FROM GIT------------------#
 
