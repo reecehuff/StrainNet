@@ -8,6 +8,7 @@ import numpy as np
 
 #-- Scripts
 from core import utils
+from core.gpu import gpu_status
 
 def train_args():
 
@@ -19,6 +20,9 @@ def train_args():
 
     # Define the device to use
     parser.add_argument('--device', type=str, default='cuda', help='The device to use.')
+
+    # Define the gpu(s) to use
+    parser.add_argument('--gpu', nargs='+', default=[0], help='The gpu(s) to use.')
 
     # Define the model type
     parser.add_argument('--model_type', type=str, default='DeformationClassifier', help='The model type to train.')
@@ -58,7 +62,7 @@ def train_args():
     parser.add_argument('--epochs', type=int, default=100, help='The number of epochs to train for.')
 
     # Define the batch size
-    parser.add_argument('--batch_size', type=int, default=8, help='The batch size to use.')
+    parser.add_argument('--batch_size', type=int, default=16, help='The batch size to use.')
 
     # Define the learning rate
     parser.add_argument('--lr', type=float, default=0.001, help='The learning rate to use.')
@@ -99,14 +103,14 @@ def train_args():
     # Parse the arguments
     args = parser.parse_args()
 
+    # Add the experiment name to the model directory
+    args.model_dir = os.path.join(args.model_dir, args.experiment_name)
+
     # Tack on a timestamp to the experiment name
     args.experiment_name = args.experiment_name + '_' + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
 
     # Add the experiment name to the log directory
     args.log_dir = os.path.join(args.log_dir, args.experiment_name)
-
-    # Add the experiment name to the model directory
-    args.model_dir = os.path.join(args.model_dir, args.experiment_name)
 
     # Create a directory for logging the results
     if not os.path.exists(args.log_dir):
@@ -122,10 +126,8 @@ def train_args():
     # Assert the validation data directory exists
     assert os.path.exists(args.val_data_dir), 'The validation data directory does not exist.'
 
-    # Make sure that cuda is available if you wish to use it
-    if args.device == 'cuda' and not torch.cuda.is_available():
-        Warning('Cuda is not available. Using cpu instead.')
-        args.device = 'cpu'
+    # Robustly handle the gpu argument
+    args.device = gpu_status(args.device, args.gpu)
 
     # Add the training transform
     args.train_transform = utils.get_transform(args, 'train')
@@ -160,6 +162,9 @@ def eval_args():
 
     # Define the device to use
     parser.add_argument('--device', type=str, default='cuda', help='The device to use.')
+
+    # Define the gpu(s) to use
+    parser.add_argument('--gpu', nargs='+', default=[0], help='The gpu(s) to use.')
 
     # Define the model type
     parser.add_argument('--model_type', type=str, default='StrainNet', help='The model type to evaluate.')
@@ -235,10 +240,8 @@ def eval_args():
     # Assert the validation data directory exists
     assert os.path.exists(args.val_data_dir), 'The validation data directory does not exist.'
 
-    # Make sure that cuda is available if you wish to use it
-    if args.device == 'cuda' and not torch.cuda.is_available():
-        Warning('Cuda is not available. Using cpu instead.')
-        args.device = 'cpu'
+    # Robustly handle the gpu argument
+    args.device = gpu_status(args.device, args.gpu)
 
     # Add the validation transform
     args.valid_transform = utils.get_transform(args, 'valid')
