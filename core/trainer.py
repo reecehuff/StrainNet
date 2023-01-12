@@ -6,6 +6,7 @@ from torch.utils.tensorboard import SummaryWriter
 
 #-- Scripts 
 from core import utils
+from core.gpu import print_status
 
 # Define a function for training the model
 def train_model(args, model_type):
@@ -66,6 +67,15 @@ def train_one_epoch(model, data_loader, optimizer, loss_function, device, writer
 
         # Log the loss
         writer.add_scalar('losses/training', loss.item(), epoch)
+
+    # Check the status of the gpu after every epoch
+    if torch.cuda.is_available():
+        # Print the memory usage
+        print_status(device)
+        # print(torch.cuda.memory_summary(device=device, abbreviated=True))
+
+        # Clear the cache
+        torch.cuda.empty_cache()
 
 
 # Define a function for evaluating the model during training
