@@ -150,11 +150,11 @@ class Dataset_4_Classification(data.Dataset):
 
 #%% A class for the experimental dataset
 class Dataset_Experimental(data.Dataset):
-    def __init__(self, image_paths, transform=None):
+    def __init__(self, paths, transform=None):
         """
         Args
         ----------
-        image_paths : list
+        paths : list
             List of image paths. 
         transform : callable, optional
             Optional transform to be applied on a sample.
@@ -165,23 +165,37 @@ class Dataset_Experimental(data.Dataset):
         images as the corresponding target.
 
         """
-        self.image_paths = image_paths
+        self.paths = paths
         self.transform  = transform
 
     def __len__(self):
-        # Note that substract one because the last image is the reference image
-        return len(self.image_paths)-1
+        # Assert that the number of images is the same
+        assert len(self.paths['image1']) == len(self.paths['image2']), 'The number of image 1s is not the same as the number of image 2s'
+
+        return len(self.paths['image1'])
         
     def __getitem__(self, index):
+
+        # Save the index
+        self.index = index
+
         # Load the image pair
-        image1 = cv2.imread(self.image_paths[index], cv2.IMREAD_GRAYSCALE)
-        image2 = cv2.imread(self.image_paths[index+1], cv2.IMREAD_GRAYSCALE)
+        image1 = cv2.imread(self.paths['image1'][index], cv2.IMREAD_GRAYSCALE)
+        image2 = cv2.imread(self.paths['image2'][index], cv2.IMREAD_GRAYSCALE)
+
+        # Normalize images
+        image1 = 2*(image1.astype('float32') / 255) - 1.0
+        image2 = 2*(image2.astype('float32') / 255) - 1.0
+        
+        # Apply the transform
+        if self.transform:
+            image1 = self.transform(image1)
+            image2 = self.transform(image2)
 
         # Stack the images
         images = utils.stack([image1, image2])
 
-        # Apply the transform
-        if self.transform:
-            images = self.transform(images)
-
         return images
+
+    def get_im_paths(self):
+        return self.paths['image1'][self.index], self.paths['image2'][self.index]
