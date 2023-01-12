@@ -6,6 +6,7 @@ if [[ "$OSTYPE" == "linux-gnu"* ]]; then
         wget -O models.zip https://berkeley.box.com/shared/static/iao62834avik8y8dw4dth684bhyomesz.zip
         unzip models.zip
         rm models.zip
+        rm -rf __MACOSX/
 
 elif [[ "$OSTYPE" == "darwin"* ]]; then
         # Mac OSX
