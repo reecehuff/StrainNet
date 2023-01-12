@@ -16,7 +16,7 @@ def train_model(args, model_type):
     
     # Initialize the model
     if args.resume:
-        model = utils.load_model(args, model_type, train=True)
+        model = utils.load_model(args, model_type, train=True, resume=args.resume)
     else:
         model = utils.initialize_model(args, model_type, train=True)
 
