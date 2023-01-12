@@ -316,10 +316,8 @@ class deformation_maker(object):
         # If the deformation function is a rigid.two or rigid.three
         # Import the necessary functions
         from . import rigid
-        print(self.deformation_function)
         if isinstance(self.deformation_function, rigid.two) or isinstance(self.deformation_function, rigid.three):
             # Both images are the same
-            print("Copying image over")
             img1 = img2.copy()
 
         # Add noise to the imgs if desired
