@@ -2,6 +2,7 @@
 import argparse
 import pandas as pd
 import os 
+import shutil
 
 def generate_args():
 
@@ -101,7 +102,11 @@ def generate_args():
     print('================================================================')
     print('================================================================')
 
-    # Create the output directory for the deformation type
+    # If the output directory does exist, then delete it
+    if os.path.exists(args.output_path):
+        shutil.rmtree(args.output_path)
+
+    # Create the output directory if it does not exist
     print(args.output_path)
     if not os.path.exists(args.output_path):
         os.makedirs(args.output_path)
