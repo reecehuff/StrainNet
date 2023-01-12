@@ -44,7 +44,7 @@ def initialize_model(args, model_type, train=False):
     return model
 
 # Define a function for loading the model
-def load_model(args, model_type, train=False):
+def load_model(args, model_type, train=False, resume=None):
 
     # Initialize the model depending on the model type
     if model_type == 'DeformationClassifier':
@@ -61,9 +61,9 @@ def load_model(args, model_type, train=False):
         model_name = args.RigidNet_name
 
     # Load the model
-    if args.resume:
-        print('Resuming training on: {}'.format(os.path.join(args.resume, model_name + '.pt')))
-        model.load_state_dict(torch.load(os.path.join(args.resume, model_name + '.pt'), map_location=torch.device(args.device)))
+    if resume:
+        print('Resuming training on: {}'.format(os.path.join(resume, model_name + '.pt')))
+        model.load_state_dict(torch.load(os.path.join(resume, model_name + '.pt'), map_location=torch.device(args.device)))
     else:
         print('Loading model from: {}'.format(os.path.join(args.model_dir, model_name + '.pt')))
         model.load_state_dict(torch.load(os.path.join(args.model_dir, model_name + '.pt'), map_location=torch.device(args.device)))
@@ -237,6 +237,52 @@ def get_sequential_paths(path, sampling_rate=1, custom_sampling=False):
 
     return paths
 
+# Define a function for getting the paths for experimental image paths
+def get_exp_image_paths(path, sampling_rate=1, custom_sampling=False):
+
+    # Get all of the paths 
+    # The depth of the paths to search depends on where the data is stored
+    # Therefore, we will increase the depth until we find the data
+    max_depth = 10
+    for i in range(max_depth):
+        depth = "/*" * i + "/*.*"
+        depth = depth[1:]
+        paths = sorted(glob.glob(os.path.join(path, depth), recursive=True))
+        if len(paths) != 0:
+            break
+        if i == max_depth - 1:
+            raise Exception('No data is present in the path you specified')
+
+    # Separate the paths for the images and strains
+    imagepaths = []
+    for path in paths:
+        if 'im' in path:
+            imagepaths.append(path)
+
+    # Sort the paths
+    imagepaths = sorted(imagepaths)
+
+    # Sample the paths
+    if custom_sampling:
+        imagepaths = [imagepaths[i] for i in custom_sampling]
+    else:
+        imagepaths = imagepaths[::sampling_rate]
+
+    # Image 1 paths will be all of the image paths except the last one
+    image1paths = imagepaths[:-1]
+    # Image 2 paths will be all of the image paths except the first one
+    image2paths = imagepaths[1:]
+
+    # Print the number of paths
+    print('Number of image1 paths: ', len(image1paths))
+    print('Number of image2 paths: ', len(image2paths))
+
+    # Create a dictionary of the paths
+    paths = {'image1': image1paths, 
+             'image2': image2paths}
+
+    return paths
+
 # Define a function for getting the data loader for training or validation
 def get_data_loader(args, model_type, train=True):
 
@@ -290,14 +336,14 @@ def get_eval_data_loader(args):
 # Define a function for getting the data loader for testing
 def get_experimental_data_loader(args):
     
-    # Gather the paths for the images and strains
-    paths = get_paths(args.test_data_dir)
+    # Gather the paths for the images
+    paths = get_exp_image_paths(args.exp_data_dir, args.sampling_rate)
 
     # Create DataSet object
-    data_set = Dataset_Experimental(paths, args.valid_transform)
+    data_set = Dataset_Experimental(paths, args.test_transform)
 
     # Create the data loader
-    data_loader = DataLoader(data_set, batch_size=args.exp_batch_size, shuffle=False)
+    data_loader = DataLoader(data_set, batch_size=args.batch_size, shuffle=False)
 
     return data_loader
 
@@ -437,23 +483,6 @@ def get_data_dirs(args):
 
     return args
 
-# Define a function for gathering the data directories for evaluation
-def get_eval_data_dirs(args):
-
-    # If dealing with sequential data
-    if args.sequential:
-        
-        # Assert that the data directories exist
-        assert os.path.exists(args.val_data_dir), 'Validation data directory does not exist'
-
-    # If dealing with a standard validation dataset 
-    else:
-
-        # Assert that the data directories exist
-        assert os.path.exists(args.val_data_dir), 'Validation data directory does not exist'
-
-    return args
-
 # Define a function for getting the current frame number 
 def get_frame_number(data_loader, init=False):
     
@@ -480,3 +509,17 @@ def set_random_seeds(seed):
     np.random.seed(seed)
     torch.backends.cudnn.deterministic = True
     torch.backends.cudnn.benchmark = False
+
+# Define a function for cropping the strains
+def crop_strains(strains, args):
+
+        # Unpack the cropping coordinates
+        lower_left_x, lower_left_y, upper_right_x, upper_right_y = args.crop_box
+
+        # Crop the strains
+        if len(strains.shape) == 3:
+            strains = strains[:, lower_left_y:upper_right_y, lower_left_x:upper_right_x]
+        elif len(strains.shape) == 4:
+            strains = strains[:, :, lower_left_y:upper_right_y, lower_left_x:upper_right_x]
+    
+        return strains
