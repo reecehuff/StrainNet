@@ -268,3 +268,109 @@ def eval_args():
     print('================================================================')
 
     return args
+
+# Define a function for applying the model to experimental data
+def experimental_args():
+    
+    # Gather the arguments from the command line
+    parser = argparse.ArgumentParser(description='Apply StrainNet to experimental data.')
+
+    # Define the random seed
+    parser.add_argument('--seed', type=int, default=0, help='The random seed to use.')
+
+    # Define the device to use
+    parser.add_argument('--device', type=str, default='cuda', help='The device to use.')
+
+    # Define the gpu(s) to use
+    parser.add_argument('--gpu', nargs='+', default=[0], help='The gpu(s) to use.')
+
+    # Define the model type
+    parser.add_argument('--model_type', type=str, default='StrainNet', help='The model type to evaluate.')
+
+    # Define the model name of the DeformationClassifier
+    parser.add_argument('--DeformationClassifier_name', type=str, default='DeformationClassifier', help='The model name of the DeformationClassifier.')
+
+    # Define the model name of the TensionNet
+    parser.add_argument('--TensionNet_name', type=str, default='TensionNet', help='The model name of the TensionNet.')
+
+    # Define the model name of the CompressionNet
+    parser.add_argument('--CompressionNet_name', type=str, default='CompressionNet', help='The model name of the CompressionNet.')
+
+    # Define the model name of the RigidNet
+    parser.add_argument('--RigidNet_name', type=str, default='RigidNet', help='The model name of the RigidNet.')
+
+    # Define the number of classes 
+    parser.add_argument('--num_classes', type=int, default=3, help='The number of classes (number of different deformations to predict) to use.')
+
+    # Define the number of input channels
+    parser.add_argument('--input_channels', type=int, default=2, help='The number of input channels to use.')
+
+    # Define the height of the input image
+    parser.add_argument('--input_height', type=int, default=384, help='The height of the input image to use.')
+
+    # Define the width of the input image
+    parser.add_argument('--input_width', type=int, default=192, help='The width of the input image to use.')
+
+    # Define the batch size
+    parser.add_argument('--batch_size', type=int, default=1, help='The batch size to use.')
+
+    # Define the model directory
+    model_dir = 'models/' + 'pretrained/experimental/' 
+    parser.add_argument('--model_dir', type=str, default=model_dir, help='The model directory to use.')
+
+    # Define the log directory
+    log_dir = 'results/' + 'Subject1.10mvc.trial1/'
+    parser.add_argument('--log_dir', type=str, default=log_dir, help='The log directory to use.')
+
+    # Define the location of the experimental data
+    exp_data_dir = 'datasets/experimental/test/10mvc/trial1/'
+    parser.add_argument('--exp_data_dir', type=str, default=exp_data_dir, help='The directory of the validation data.')
+
+    # Define the crop box for getting the bulk strains from the experimental data
+    lower_left_x = 25
+    lower_left_y = 125
+    upper_right_x = 175
+    upper_right_y = 225
+    parser.add_argument('--crop_box', nargs='+', default=[lower_left_x, lower_left_y, upper_right_x, upper_right_y], help='The crop box for getting the bulk strains from the experimental data.')
+
+    # Define whether to visualize the data
+    parser.add_argument('--visualize', action='store_true', help='Whether to visualize the data.')
+
+    # Define whether to save the strains
+    parser.add_argument('--save_strains', action='store_true', help='Whether to save the strains.')
+
+    # Add an argument the sampling rate of the sequential data
+    parser.add_argument('--sampling_rate', type=int, default=1, help='The sampling rate of the sequential data.')
+
+    # Parse the arguments
+    args = parser.parse_args()
+
+    # Create a directory for logging the results
+    if not os.path.exists(args.log_dir):
+        os.makedirs(args.log_dir)
+
+    # Assert the validation data directory exists
+    print('The experimental data directory is: ' + args.exp_data_dir)
+    assert os.path.exists(args.exp_data_dir), 'The experimental data directory does not exist.'
+
+    # Robustly handle the gpu argument
+    args.device = gpu_status(args.device, args.gpu)
+
+    # Add the validation transform
+    args.test_transform = utils.get_transform(args, 'test')
+
+    # Save the args as a xlsx file
+    args_df = pd.DataFrame.from_dict(vars(args), orient='index')
+    args_df.to_excel(args.log_dir + '/args.xlsx')
+    
+    # Loop through the arguments and print them
+    print('================================================================')
+    print('======================== Arguments: ============================')
+    print('================================================================')
+    for arg in vars(args):
+        print(arg, ':', getattr(args, arg))
+    print('================================================================')
+    print('================================================================')
+    print('================================================================')
+
+    return args
