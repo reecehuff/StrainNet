@@ -16,7 +16,6 @@ def main(args):
     # 2. Evaluate on sequential set of test images, such as the synthetic test cases
     # If you wish to apply StrainNet to experimentally collected images (where the strain is unknown)
     # then you can see apply2experimental.py
-    args = utils.get_eval_data_dirs(args)
     eval_model(args, args.sequential)
 
     # Print a message to the user
