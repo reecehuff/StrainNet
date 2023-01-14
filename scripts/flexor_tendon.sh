@@ -11,10 +11,3 @@ do
                                         --log_dir results/subject1.${MVC}mvc.trial${TRIAL}/
     done
 done
-
-# python apply2experimental.py    --exp_data_dir datasets/experimental/test/10mvc/trial1/ \
-#                                 --model_dir models/pretrained/experimental/ \
-#                                 --sampling_rate 30 \
-#                                 --save_strains \
-#                                 --visualize \
-#                                 --log_dir results/subject1.10mvc.trial1/
