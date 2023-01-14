@@ -72,6 +72,9 @@ def generate_args():
     parser.add_argument('--upper_left_corner_x', type=int, default=upper_left_corner_x, help='The x coordinate of the upper left corner of the cropping region.')
     parser.add_argument('--upper_left_corner_y', type=int, default=upper_left_corner_y, help='The y coordinate of the upper left corner of the cropping region.')
 
+    # Define the double warp option
+    parser.add_argument('--double_warp', action='store_true', help='Whether to apply the deformation twice (note: this will double the number of examples).')
+
     #%% Define whether to visualize the data
     parser.add_argument('--visualize', action='store_true', help='Whether to visualize the data.')
 
