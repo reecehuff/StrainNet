@@ -130,7 +130,7 @@ def evaluate_sequential(args, model, data_loader, device):
         # Forward pass
         with torch.no_grad():
             outputs, pred_strain = model(imgs)
-
+        
         # Update the running strains
         running_strains = running_strains + outputs
 
