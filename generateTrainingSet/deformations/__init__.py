@@ -54,13 +54,13 @@ class deformation_maker(object):
         self.im1, self.im2 = self.imwarp(self.img, self.displacement_field)
 
         # Crop the images, displacement field, and strain
-        self.im1, self.im2 = self.crop(self.im1), self.crop(self.im2)
-        self.displacement_field = self.crop(self.displacement_field)
-        self.strain = self.crop(self.strain)
+        self.im1_cropped, self.im2_cropped = self.crop(self.im1), self.crop(self.im2)
+        self.displacement_field_cropped = self.crop(self.displacement_field)
+        self.strain_cropped = self.crop(self.strain)
 
         # Package the final outputs (the images and the deformation fields)
-        self.deformation    = [self.displacement_field, self.strain]
-        self.images         = [self.im1, self.im2]
+        self.deformation    = [self.displacement_field_cropped, self.strain_cropped]
+        self.images         = [self.im1_cropped, self.im2_cropped]
 
     def defineDeformationFunction(self, deformation_type, COUNT):
 
