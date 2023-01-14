@@ -30,6 +30,12 @@ def createTrainingSet(deformation_type, path2images, path2masks, args, COUNT):
     else:
         raise ValueError('The deformation type must be either "tension", "compression", or "rigid"')
 
+    # We divide the number of images by 2 if the double_warp flag is set to True
+    # This is because we will be generating two examples for each image we read in the for loop
+    if args.double_warp:
+        num_deformations = np.round(num_deformations // 2).astype(int)
+
+    # Select the indices of the images and masks to use to generate the training set at random
     indices = sorted(np.random.choice(len(path2images), num_deformations))
 
     print(' ' * 5)
@@ -62,6 +68,36 @@ def createTrainingSet(deformation_type, path2images, path2masks, args, COUNT):
 
         # Increment the count
         deformation_maker.COUNT = COUNT
+
+        # If desired, you may also include a double warped image in the training set for robustness on synthetic data
+        if args.double_warp:
+
+            # The input image will now be a warped image
+            img = deformation_maker.im2.copy()
+
+            # Update the deformation maker with the new image and mask
+            # as well as the deformation type, the count, and the arguments
+            deformation_maker.update(img, mask, deformation_type, COUNT, args)
+
+            # Get the displacement field and strain field
+            displacement, strain = deformation_maker.deformation
+
+            # Get the images
+            img1, img2 = deformation_maker.images
+
+            # Make sure that the images, displacement field, and strain field are the correct size
+            assert img1.shape == img2.shape == displacement.shape[:2] == strain.shape[:2] == (args.output_height, args.output_width)
+
+            # Save the images, displacement field, and strain fields
+            output_path = os.path.join(args.output_path, deformation_type)
+            COUNT = utils.saveData(img1, img2, displacement, strain, output_path, COUNT)
+
+            # If desired, visualize the image, mask, displacement field, and strain fields
+            if args.visualize:
+                utils.visualizeData(img1, img2, displacement, strain, output_path, COUNT-1)
+
+            # Increment the count
+            deformation_maker.COUNT = COUNT
 
     return COUNT
 
