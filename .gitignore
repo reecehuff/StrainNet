@@ -9,7 +9,7 @@ models/*
 results/*
 __MACOSX/*
 augment.py
-scripts/testing.sh
+scripts/testing*
 test_results/*
 
 #---------------------BELOW IS FOR THE PYTHON TEMPLATE FROM GIT------------------#
