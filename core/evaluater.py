@@ -124,9 +124,6 @@ def evaluate_sequential(args, model, data_loader, device):
         # Load the images and strains to the device
         imgs, strains = imgs.to(device), strains.to(device)
 
-        # Convert the strains to percentages
-        strains = strains * 100
-
         # Forward pass
         with torch.no_grad():
             outputs, pred_strain = model(imgs)
