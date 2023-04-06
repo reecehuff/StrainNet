@@ -1,6 +1,6 @@
 #%% Define a set of classes for the tensile deformations
 
-class one: # Tension 1
+class quadratic: # Tension 1 (Quadratic)
 
     # Define a function that calculates the displacement in the x and y directions
     @staticmethod
@@ -46,7 +46,7 @@ class one: # Tension 1
 
         return strain_xx, strain_yy, strain_xy
 
-class two: # Tension 2
+class linear: # Tension 2 (Linear)
 
     # Define a function that calculates the displacement in the x and y directions
     @staticmethod

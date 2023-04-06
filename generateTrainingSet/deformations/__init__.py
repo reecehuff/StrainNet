@@ -13,6 +13,9 @@ class deformation_maker(object):
         self.deformation_type = deformation_type
         self.COUNT = COUNT
         self.args = args
+        self.rigid_deformation_functions       = args.rigid_deformation_functions
+        self.compression_deformation_functions = args.compression_deformation_functions
+        self.tension_deformation_functions     = args.tension_deformation_functions
 
         # # Initialize the deformation function
         self.defineDeformationFunction(deformation_type, COUNT)
@@ -68,39 +71,56 @@ class deformation_maker(object):
         if deformation_type == 'tension':
             # Import the tension functions
             from . import tension
-            # Depending on the count and deformation type, define the deformation function
-            count_remainder = COUNT % 2 + 1
-            # Define the deformation function
-            if count_remainder == 1:
-                self.deformation_function = tension.one()
-            elif count_remainder == 2:
-                self.deformation_function = tension.two()
+            if self.tension_deformation_functions == 'all':
+                # Depending on the count and deformation type, define the deformation function
+                count_remainder = COUNT % 2 + 1
+                # Define the deformation function
+                if count_remainder == 1:
+                    self.deformation_function = tension.quadratic()
+                elif count_remainder == 2:
+                    self.deformation_function = tension.linear()
+            elif self.tension_deformation_functions == 'quadratic':
+                self.deformation_function = tension.quadratic()
+            elif self.tension_deformation_functions == 'linear':
+                self.deformation_function = tension.linear()
         
         # For compression 
         elif deformation_type == 'compression':
             # Import the compression functions
-            # Depending on the count and deformation type, define the deformation function
-            count_remainder = COUNT % 2 + 1
             from . import compression
-            # Define the deformation function
-            if count_remainder == 1:
-                self.deformation_function = compression.one()
-            elif count_remainder == 2:
-                self.deformation_function = compression.two()
+            if self.compression_deformation_functions == 'all':
+                # Depending on the count and deformation type, define the deformation function
+                count_remainder = COUNT % 2 + 1
+                # Define the deformation function
+                if count_remainder == 1:
+                    self.deformation_function = compression.quadratic()
+                elif count_remainder == 2:
+                    self.deformation_function = compression.linear()
+            elif self.compression_deformation_functions == 'quadratic':
+                self.deformation_function = compression.quadratic()
+            elif self.compression_deformation_functions == 'linear':
+                self.deformation_function = compression.linear()
 
         # For rigid
         elif deformation_type == 'rigid':
             # Import the rigid functions
             from . import rigid
-            # Depending on the count and deformation type, define the deformation function
-            count_remainder = COUNT % 3 + 1
-            # Define the deformation function
-            if count_remainder == 1:
-                self.deformation_function = rigid.one()
-            elif count_remainder == 2:
-                self.deformation_function = rigid.two()
-            elif count_remainder == 3:
-                self.deformation_function = rigid.three()
+            if self.rigid_deformation_functions == 'all':
+                # Depending on the count and deformation type, define the deformation function
+                count_remainder = COUNT % 3 + 1
+                # Define the deformation function
+                if count_remainder == 1:
+                    self.deformation_function = rigid.rotation()
+                elif count_remainder == 2:
+                    self.deformation_function = rigid.quadratic()
+                elif count_remainder == 3:
+                    self.deformation_function = rigid.linear()
+            elif self.rigid_deformation_functions == 'rotation':
+                self.deformation_function = rigid.rotation()
+            elif self.rigid_deformation_functions == 'quadratic':
+                self.deformation_function = rigid.quadratic()
+            elif self.rigid_deformation_functions == 'linear':
+                self.deformation_function = rigid.linear()
 
     def image_and_mask_properties(self, img, mask):
 
@@ -313,10 +333,10 @@ class deformation_maker(object):
         displacement_field_4_warping[:,:,1] += np.arange(h)[:,np.newaxis]
         img2 = cv2.remap(img, displacement_field_4_warping, None, cv2.INTER_LINEAR)
 
-        # If the deformation function is a rigid.two or rigid.three
+        # If the deformation function is a rigid.quadratic or rigid.linear
         # Import the necessary functions
         from . import rigid
-        if isinstance(self.deformation_function, rigid.two) or isinstance(self.deformation_function, rigid.three):
+        if isinstance(self.deformation_function, rigid.quadratic) or isinstance(self.deformation_function, rigid.linear):
             # Both images are the same
             img1 = img2.copy()
 

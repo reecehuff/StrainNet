@@ -30,6 +30,11 @@ def generate_args():
     # Define the noise level
     parser.add_argument('--noise', type=float, default=10.0, help='The noise level to add to the second image in the training set.')
 
+    #%% Define the deformation functions you are interested in applying
+    parser.add_argument('--rigid_deformation_functions', type=str, default='all', choices=['all', 'rotation', 'quadratic', 'linear'], help='The type of deformations you would like to apply for rigid body motions.')
+    parser.add_argument('--compression_deformation_functions', type=str, default='all', choices=['all', 'quadratic', 'linear'], help='The type of deformations you would like to apply for compressive deformations.')
+    parser.add_argument('--tension_deformation_functions', type=str, default='all', choices=['all', 'quadratic', 'linear'], help='The type of deformations you would like to apply for tensile deformations.')
+
     #%% Define the parameters for the tension and comopression deformation
     # Define the minimum and maximum values of the longitudinal strain
     min_epsilon_xx = 2.0  / 100.0 # 2.0 % strain
@@ -42,8 +47,8 @@ def generate_args():
     parser.add_argument('--min_num_frames', type=int, default=min_num_frames, help='The minimum number of frames to reach the maximum value of epsilon_xx.')
     parser.add_argument('--max_num_frames', type=int, default=max_num_frames, help='The maximum number of frames to reach the maximum value of epsilon_xx.')
     # Define the minimum and maximum values of the Poisson's ratio
-    min_nu = 0.5
-    max_nu = 0.5
+    min_nu = 0.25
+    max_nu = 1.5
     parser.add_argument('--min_nu', type=float, default=min_nu, help='The minimum value of nu.')
     parser.add_argument('--max_nu', type=float, default=max_nu, help='The maximum value of nu.')
 
@@ -74,6 +79,18 @@ def generate_args():
 
     # Define the double warp option
     parser.add_argument('--double_warp', action='store_true', help='Whether to apply the deformation twice (note: this will double the number of examples).')
+
+    # A toggle for augment the training set for the DeformationClassifier
+    parser.add_argument('--augment', action='store_true', help='Whether to augment the training set with images from the experiments (only for the DeformationClassifier).')
+
+    # The sampling rate when augmenting the training set for the DeformationClassifier 
+    parser.add_argument('--aug_sample_rate', type=int, default=30, help='The sampling rate when augmenting the training set for the DeformationClassifier.')
+
+    # A toggle for selecting a subset of the images and masks for warping
+    parser.add_argument('--image_mask_subset', type=str, default='off', choices=['on', 'off'], help='Whether you wish to apply the warping to subset of all of the input images and masks.')
+
+    # Path to experimental images for augmenting the training set
+    parser.add_argument('--path2experimentalImages', type=str, default='datasets/experimental/train/fullsize/images/', help='Path to experimental images for augmenting the training set (see augment_training_set in processTrainingSet.py).')
 
     #%% Define whether to visualize the data
     parser.add_argument('--visualize', action='store_true', help='Whether to visualize the data.')

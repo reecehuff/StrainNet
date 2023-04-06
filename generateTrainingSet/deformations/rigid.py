@@ -3,7 +3,7 @@ import numpy as np
 
 #%% Define a set of classes for the rigid body motions
 
-class one: # Rigid 1
+class rotation: # Rigid 1
 
     # Define a function that calculates the displacement in the x and y directions
     @staticmethod
@@ -35,7 +35,7 @@ class one: # Rigid 1
 
         return strain_xx, strain_yy, strain_xy
 
-class two: # Rigid 2 (note: img1 and img2 will both be the image warped by this displacement field)
+class quadratic: # Rigid 2 (note: img1 and img2 will both be the image warped by this displacement field)
 
     # Define a function that calculates the displacement in the x and y directions
     @staticmethod
@@ -72,7 +72,7 @@ class two: # Rigid 2 (note: img1 and img2 will both be the image warped by this 
 
         return strain_xx, strain_yy, strain_xy
 
-class three: # Rigid 3 (note: img1 and img2 will both be the image warped by this displacement field)
+class linear: # Rigid 3 (note: img1 and img2 will both be the image warped by this displacement field)
 
     # Define a function that calculates the displacement in the x and y directions
     @staticmethod

@@ -1,6 +1,6 @@
 #%% Define a set of classes for the compressive deformations
 
-class one: # Compression 1 (Quadratic)
+class quadratic: # Compression 1 (Quadratic)
 
     # Define a function that calculates the displacement in the x and y directions
     @staticmethod
@@ -46,7 +46,7 @@ class one: # Compression 1 (Quadratic)
 
         return strain_xx, strain_yy, strain_xy
 
-class two: # Compression 2 (Linear)
+class linear: # Compression 2 (Linear)
 
     # Define a function that calculates the displacement in the x and y directions
     @staticmethod
