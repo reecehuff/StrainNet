@@ -1,15 +1,8 @@
-<!-- omit in toc -->
 # StrainNet
 StrainNet is a deep learning based method for predicting strain from images
 
 ![Teaser image](figures/StrainNet.gif)
 
-### [Project Page](https://strainnet.net) | Paper | bioRxiv | SB3C Abstract | [Citation](#citation)
-
-**Note:** This paper has been submitted to a journal and the link will be added upon publication.
-<br/>
-
-<!-- omit in toc -->
 # Table of Contents 
 - [Getting Started](#getting-started)
   - [Set-up](#set-up)
@@ -86,10 +79,7 @@ You should now see a `results` folder with some plots of the performance on a sy
 
 # Generating a training set
 
-<!-- omit in toc -->
 ### For a full tutorial, see [generateTrainingSet/README.md](generateTrainingSet/README.md).
-
-<br/>
 
 # Training StrainNet 
 
