@@ -6,7 +6,7 @@ from tqdm import tqdm
 #-- Scripts 
 from core import utils
 from core.arguments import generate_args
-from core.processTrainingSet import copyDataAndSplitIntoTrainingAndValidation
+from core.processTrainingSet import copyDataAndSplitIntoTrainingAndValidation, augment_training_set
 import deformations
 
 # Define a function that will create a training set for a given deformation type
@@ -14,6 +14,7 @@ def createTrainingSet(deformation_type, path2images, path2masks, args, COUNT):
 
     #%% Begin by initializing the deformation maker
     # Load a random image and mask
+    print(path2images[0])
     img, mask = utils.load.image_and_mask(path2images[0], path2masks[0])
     deformation_maker = deformations.deformation_maker(img, mask, deformation_type, COUNT, args)
 
@@ -115,6 +116,11 @@ def main(args):
     path2images = utils.get.paths(args.image_path)
     path2masks  = utils.get.paths(args.mask_path)
 
+    # If you only wish to use a subset of the images and masks
+    if args.image_mask_subset == "on":
+        path2images = ['generateTrainingSet/input/images/10mvc_trial1_0001.png']
+        path2masks  = ['generateTrainingSet/input/masks/10mvc_trial1_0001.png']
+        
     # Check that the names of the images and masks are the same
     utils.check.image_and_mask_file_names(path2images, path2masks)    
 
@@ -141,6 +147,10 @@ def main(args):
     path2FinalTrainingSet = os.path.join(args.finalized_training_set_dir, args.training_set_name)
 
     copyDataAndSplitIntoTrainingAndValidation(path2TrainingSet, path2FinalTrainingSet, args.training_percentage)
+
+    # Augment the training set for the DeformationClassifier if you wish
+    if args.augment:
+        augment_training_set(path2FinalTrainingSet,args)
 
     print('The training set has been processed.')
     print(' ' * 5)
