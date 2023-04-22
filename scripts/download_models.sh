@@ -3,7 +3,7 @@ if [[ "$OSTYPE" == "linux-gnu"* ]]; then
         # Linux operating system
         echo "Linux operating system detected"
         echo "Downloading the models..."
-        wget -O models.zip https://berkeley.box.com/shared/static/iao62834avik8y8dw4dth684bhyomesz.zip
+        wget -O models.zip https://berkeley.box.com/shared/static/mtgvtffuaz4uhz8xmacd421n7x58r8pz.zip
         unzip models.zip
         rm models.zip
         rm -rf __MACOSX/
@@ -12,7 +12,7 @@ elif [[ "$OSTYPE" == "darwin"* ]]; then
         # Mac OSX
         echo "Mac OSX operating system detected"
         echo "Downloading the models..."
-        curl -L https://berkeley.box.com/shared/static/iao62834avik8y8dw4dth684bhyomesz --output models.zip 
+        curl -L https://berkeley.box.com/shared/static/mtgvtffuaz4uhz8xmacd421n7x58r8pz --output models.zip 
         unzip models.zip
         rm models.zip
         rm -rf __MACOSX/
