@@ -251,48 +251,17 @@ def visualize_exp(imgs, strains, savePath, args):
     color_bar_label = 'strain [%]'
     strainOverImage(img2, pred_strain_xx, title, color_bar_label, color_bar_range_xx)
 
-    # colorbarplot_xx = plt.imshow(pred_strain_xx,alpha=1, cmap='viridis', vmin=color_bar_range_xx[0], vmax=color_bar_range_xx[1])
-    # plt.imshow(img2, alpha=0.7, cmap=plt.cm.gray)
-    # plt.title('Predicted strain ($\epsilon_{xx}^{pred}$)', fontsize=20)
-    # # Add the colorbar
-    # cbar = plt.colorbar(colorbarplot_xx)
-    # cbar.set_label(label="strain [%]", size=16)
-    # # Adjust the colorbar range
-    # cbar.set_ticks(np.ceil(np.linspace(color_bar_range_xx[0], color_bar_range_xx[1], 5)))
-    # # Make sure the colorbar ticks do not have decimal points
-    # cbar.ax.set_yticklabels(cbar.ax.get_yticklabels(), fontsize=16)
-
     # Add the second image with the predicted strain yy overlaid
     plt.subplot(1, 3, 2)
     title = 'Predicted strain ($\epsilon_{yy}^{pred}$)'
     color_bar_label = 'strain [%]'
     strainOverImage(img2, pred_strain_yy, title, color_bar_label, color_bar_range_yy)
-    # colorbarplot_yy = plt.imshow(pred_strain_yy,alpha=1, cmap='viridis', vmin=color_bar_range_yy[0], vmax=color_bar_range_yy[1])
-    # plt.imshow(img2, alpha=0.7, cmap=plt.cm.gray)
-    # plt.title('Predicted strain ($\epsilon_{yy}^{pred}$)', fontsize=20)
-    # # Add the colorbar
-    # cbar = plt.colorbar(colorbarplot_yy)
-    # cbar.set_label(label="strain [%]", size=16)
-    # # Adjust the colorbar range
-    # cbar.set_ticks(np.ceil(np.linspace(color_bar_range_yy[0], color_bar_range_yy[1], 5)))
-    # # Make sure the colorbar ticks do not have decimal points
-    # cbar.ax.set_yticklabels(cbar.ax.get_yticklabels(), fontsize=16)
 
     # Add the second image with the predicted strain xy overlaid
     plt.subplot(1, 3, 3)
     title = 'Predicted strain ($\epsilon_{xy}^{pred}$)'
     color_bar_label = 'strain [%]'
     strainOverImage(img2, pred_strain_xy, title, color_bar_label, color_bar_range_xy)
-    # colorbarplot_xy = plt.imshow(pred_strain_xy,alpha=1, cmap='viridis', vmin=color_bar_range_xy[0], vmax=color_bar_range_xy[1])
-    # plt.imshow(img2, alpha=0.7, cmap=plt.cm.gray)
-    # plt.title('Predicted strain ($\epsilon_{xy}^{pred}$)', fontsize=20)
-    # # Add the colorbar
-    # cbar = plt.colorbar(colorbarplot_xy)
-    # cbar.set_label(label="strain [%]", size=16)
-    # # Adjust the colorbar range
-    # cbar.set_ticks(np.ceil(np.linspace(color_bar_range_xy[0], color_bar_range_xy[1], 5)))
-    # # Make sure the colorbar ticks do not have decimal points
-    # cbar.ax.set_yticklabels(cbar.ax.get_yticklabels(), fontsize=16)
 
     # Add a title to the figure
     super_title = 'Strains Predicted by StrainNet: ' + os.path.basename(savePath)
@@ -312,8 +281,8 @@ def strainOverImage(img, strain, title, color_bar_label, color_bar_range):
     # Add the colorbar
     cbar = plt.colorbar(colorbarplot)
     cbar.set_label(label=color_bar_label, size=16)
-    # Make sure the colorbar ticks do not have decimal points
-    cbar.ax.set_yticklabels(cbar.ax.get_yticklabels(), fontsize=16)
+    # Increase tick font size
+    cbar.ax.tick_params(labelsize=10)
     # Turn off the axis
     plt.axis('off')
 
@@ -418,5 +387,3 @@ def save_error_image(error_image, savePath, args):
 
     # Save the error image as a numpy array
     np.save(savePath, error_image)
-# %%
-#
