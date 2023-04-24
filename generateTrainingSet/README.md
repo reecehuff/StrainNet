@@ -71,7 +71,7 @@ The set of images and strains are processed and split into training and validati
 To create a much larger training set (the default arguments creates one with 3750 examples in total), run
 
 ```
-python generateTrainingSet/generateTraining.py
+python generateTrainingSet/generateTrainingSet.py
 ```
 
 *Note*: The ``--visualize`` flag is excluded because it increases the run time significantly.
