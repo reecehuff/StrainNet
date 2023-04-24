@@ -116,12 +116,12 @@ python train.py --help
 
 Or examine the [`core/arguments.py`](core/arguments.py) Python script. 
 
-## Resuming training on pre-trained models
-Pre-trained Models
-You can also use pre-trained models for StrainNet by specifying the `--resume` flag and the path to the pre-trained model. For example:
+## Resuming training
+
+You can also resume training on models for StrainNet by specifying the `--resume` flag and the path to the pre-trained model. For example:
 
 ```
-python train.py --resume "path/to/pretrained.pt"
+python train.py --resume "path/to/dir/containing/model.pt"
 ```
 
 ## Training all models
@@ -139,13 +139,14 @@ To run the `train.sh` script, simply execute the following command from the term
 By default, running `train.py` will write an `events.out` file to visualize the progress of training StrainNet with Tensorboard. After running `train.py`, locate the `events.out` in the newly-created `runs` folder. 
 
 ### Viewing the Tensorboard Webpage
+
 To view the Tensorboard webpage, you will need to start a Tensorboard server. You can do this by running the following command in the terminal:
 
 ```
-tensorboard --logdir="path/to/events.out"
+tensorboard --logdir="path/to/dir/containing/events.out"
 ```
 
-Replace `"path/to/events.out"` with the actual path to your events.out file. This will start a Tensorboard server and print a message with a URL that you can use to access the Tensorboard webpage.
+Replace `"path/to/dir/containing/events.out"` with a path to a folder containing events.out file(s) (e.g., `runs`). This will start a Tensorboard server and print a message with a URL that you can use to access the Tensorboard webpage.
 
 To view the Tensorboard webpage, open a web browser and navigate to the URL printed by the Tensorboard server. This will open the Tensorboard webpage, which allows you to view various training metrics and graphs.
 
@@ -155,7 +156,7 @@ To view the Tensorboard `events.out` file in Visual Studio Code, you may use the
 
 1. Open the command palette (View &rarr; Command Palette... or  Cmd + Shift + P on macOS) 
 2. Type "Python: Launch Tensorboard" in the command palette and press Enter. 
-3. Select the `runs` folder to view `events.out` files. 
+3. Select `Select another folder` and select the `runs` folder to view `events.out` file(s).
 
 # Evaluating the performance of StrainNet
 
