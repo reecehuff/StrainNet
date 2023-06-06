@@ -90,7 +90,7 @@ def generate_args():
     parser.add_argument('--image_mask_subset', type=str, default='off', choices=['on', 'off'], help='Whether you wish to apply the warping to subset of all of the input images and masks.')
 
     # Path to experimental images for augmenting the training set
-    parser.add_argument('--path2experimentalImages', type=str, default='datasets/experimental/train/fullsize/images/', help='Path to experimental images for augmenting the training set (see augment_training_set in processTrainingSet.py).')
+    parser.add_argument('--path2experimentalImages', type=str, default='datasets/training/fullsize/images/', help='Path to experimental images for augmenting the training set (see augment_training_set in processTrainingSet.py).')
 
     #%% Define whether to visualize the data
     parser.add_argument('--visualize', action='store_true', help='Whether to visualize the data.')
