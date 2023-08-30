@@ -21,4 +21,3 @@ else
         echo "Visit: https://www.dropbox.com/s/n41vqk95q25d4j3/models.zip?dl=0"
         echo "to download the models."
 fi
-
