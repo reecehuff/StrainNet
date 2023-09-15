@@ -28,7 +28,7 @@ def copyDataAndSplitIntoTrainingAndValidation(path2input, path2output, trainingS
     deformationTypes = []
     for i in range(len(paths2image1)):
         # Isolate the type of deformation from the path
-        deformationType = paths2image1[i].split('/')[-3]
+        deformationType = os.path.normpath(paths2image1[i]).split(os.sep)[-3]
         if deformationType not in deformationTypes:
             deformationTypes.append(deformationType)
 
