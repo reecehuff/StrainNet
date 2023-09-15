@@ -33,4 +33,4 @@ else
 fi
 
 mkdir generateTrainingSet/input/
-cp -R datasets/experimental/train/fullsize/* generateTrainingSet/input/.
+cp -R datasets/training/fullsize/* generateTrainingSet/input/.
