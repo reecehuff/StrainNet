@@ -36,7 +36,7 @@ class check(object):
 
         # Check that the names of the images and masks are the same
         for i in range(len(path2images)):
-            assert path2images[i].split('/')[-1].split('.')[0] == path2masks[i].split('/')[-1].split('.')[0], 'The names of the images and masks must be the same.'
+            assert os.path.basename(path2images[i]).split('.')[0] == os.path.basename(path2masks[i]).split('.')[0], 'The names of the images and masks must be the same.'
 
 class load(object):
     
