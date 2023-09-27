@@ -13,7 +13,7 @@ from core.gpu import gpu_status
 def train_args():
 
     # Gather the arguments from the command line
-    parser = argparse.ArgumentParser(description='Train the models for StrainNet.')
+    parser = argparse.ArgumentParser(description='Train the models for StrainNet.',formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
     # Define the random seed
     parser.add_argument('--seed', type=int, default=0, help='The random seed to use.')
@@ -155,7 +155,7 @@ def train_args():
 def eval_args():
     
     # Gather the arguments from the command line
-    parser = argparse.ArgumentParser(description='Evaluate the models for StrainNet.')
+    parser = argparse.ArgumentParser(description='Evaluate the models for StrainNet.',formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
     # Define the random seed
     parser.add_argument('--seed', type=int, default=0, help='The random seed to use.')
@@ -273,7 +273,7 @@ def eval_args():
 def experimental_args():
     
     # Gather the arguments from the command line
-    parser = argparse.ArgumentParser(description='Apply StrainNet to experimental data.')
+    parser = argparse.ArgumentParser(description='Apply StrainNet to experimental data.',formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
     # Define the random seed
     parser.add_argument('--seed', type=int, default=0, help='The random seed to use.')
