@@ -256,8 +256,8 @@ def get_exp_image_paths(path, sampling_rate=1, custom_sampling=False):
     # Separate the paths for the images and strains
     imagepaths = []
     for path in paths:
-        if 'im' in path:
-            imagepaths.append(path)
+        # if 'im' in path:
+        imagepaths.append(path)
 
     # Sort the paths
     imagepaths = sorted(imagepaths)
@@ -276,6 +276,15 @@ def get_exp_image_paths(path, sampling_rate=1, custom_sampling=False):
     # Print the number of paths
     print('Number of image1 paths: ', len(image1paths))
     print('Number of image2 paths: ', len(image2paths))
+    num_blanks = len(os.path.basename(image1paths[0]))
+    message1 = "path1"; message2 = "path2"
+    message1 += " " * (num_blanks - len(message1))
+    message2 += " " * (num_blanks - len(message2))
+    print("  ", message1, "  ||  ", message2)
+    for path1, path2 in zip(image1paths[:5],image2paths[:5]):
+        path1 = os.path.basename(path1)
+        path2 = os.path.basename(path2)
+        print("  ", path1, "  ||  ", path2)
 
     # Create a dictionary of the paths
     paths = {'image1': image1paths, 
